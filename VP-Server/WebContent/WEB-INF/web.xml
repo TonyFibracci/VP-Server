@@ -6,7 +6,7 @@
     <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
     <init-param>
       <param-name>jersey.config.server.provider.packages</param-name>
-      <param-value>com.luv2code.web.jdbc</param-value>
+      <param-value>resources</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
@@ -14,6 +14,9 @@
     <servlet-name>Jersey REST Service</servlet-name>
     <url-pattern>/rest/*</url-pattern>
   </servlet-mapping>
+  <listener>
+  	<listener-class>servlets.BootServlet</listener-class>
+  </listener>
   <welcome-file-list>
     <welcome-file>StudentControllerServlet</welcome-file>
     <welcome-file>index.jsp</welcome-file>

@@ -235,16 +235,16 @@ public abstract class Upload {
 			return null;
 	}
 	
-	public void save() {
-		Session session = HibernateUtil.getSessionFactory().openSession();	
-		try {		
-			session.beginTransaction();
-			session.save(this);
-			session.getTransaction().commit();			
-		} finally {
-			session.close();
-		}
-	}
+//	public void save() {
+//		Session session = HibernateUtil.getSessionFactory().openSession();	
+//		try {		
+//			session.beginTransaction();
+//			session.save(this);
+//			session.getTransaction().commit();			
+//		} finally {
+//			session.close();
+//		}
+//	}
 	
 	
 	public String toString() {

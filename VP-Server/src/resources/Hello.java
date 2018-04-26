@@ -1,4 +1,4 @@
-package com.luv2code.web.jdbc;
+package resources;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

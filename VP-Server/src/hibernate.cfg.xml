@@ -24,12 +24,12 @@
 		
 		<property name="hbm2ddl.auto">update</property>
 		
-		<mapping class="database.Upload"/>
- 		<mapping class="database.BloombergUpload"/>
- 		<mapping class="database.MarkitUpload"/>
- 		<mapping class="database.ICEUpload"/>
- 		<mapping class="database.Job"/>
- 		<mapping class="database.User"/>
+		<mapping class="model.Upload"/>
+ 		<mapping class="model.BloombergUpload"/>
+ 		<mapping class="model.MarkitUpload"/>
+ 		<mapping class="model.ICEUpload"/>
+ 		<mapping class="model.Job"/>
+ 		<mapping class="model.User"/>
     </session-factory>
 
 </hibernate-configuration>

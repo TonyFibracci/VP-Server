@@ -265,27 +265,5 @@ public class Job {
 		return sb.toString();
 	}
 	
-	public void save() {
-		Session session = HibernateUtil.getSessionFactory().openSession();	
-		try {		
-			session.beginTransaction();
-			session.saveOrUpdate(this);
-			session.getTransaction().commit();			
-		} finally {
-			session.close();
-		}
-	}
-	
-	public void delete() {
-		Session session = HibernateUtil.getSessionFactory().openSession();	
-		try {		
-			session.beginTransaction();
-			session.delete(this);
-			session.getTransaction().commit();			
-		} finally {
-			session.close();
-		}
-	}
-	
 
 }

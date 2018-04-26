@@ -39,5 +39,28 @@ public class JobService {
 			session.close();
 		}	
 	}
+	
+	public static void addJob(Job job) {
+		Session session = HibernateUtil.getSessionFactory().openSession();	
+		try {		
+			session.beginTransaction();
+			session.saveOrUpdate(job);
+			session.getTransaction().commit();			
+		} finally {
+			session.close();
+		}
+	}
+	
+	public static void deleteJob(int id) {
+		Session session = HibernateUtil.getSessionFactory().openSession();	
+		try {		
+			session.beginTransaction();
+			Query query = session.createNativeQuery("DELETE FROM tbl_Job WHERE id = :id");
+			query.setParameter("id", id);
+			query.executeUpdate();
+		} finally {
+			session.close();
+		}
+	}
 
 }
