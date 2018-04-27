@@ -4,8 +4,9 @@
 <html>
 
 <head>
-	<title>Student Tracker App</title>
-	
+	<title>Visual Portfolio Benchmarking</title>
+	<link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
 	<link type="text/css" rel="stylesheet" href="css/style.css">
 </head>
 

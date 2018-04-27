@@ -1,4 +1,4 @@
-package com.luv2code.web.jdbc;
+package servlets;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,6 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
+import com.luv2code.web.jdbc.Student;
+import com.luv2code.web.jdbc.StudentDbUtil;
+
 /**
  * Servlet implementation class StudentControllerServlet
  */
@@ -19,22 +22,12 @@ import javax.sql.DataSource;
 public class StudentControllerServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private StudentDbUtil studentDbUtil;
-	
-	@Resource(name="jdbc/web_student_tracker")
-	private DataSource dataSource;
 	
 	@Override
 	public void init() throws ServletException {
 		super.init();
 		
 		// create our student db util ... and pass in the conn pool / datasource
-		try {
-			studentDbUtil = new StudentDbUtil(dataSource);
-		}
-		catch (Exception exc) {
-			throw new ServletException(exc);
-		}
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

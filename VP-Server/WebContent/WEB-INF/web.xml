@@ -15,11 +15,9 @@
     <url-pattern>/rest/*</url-pattern>
   </servlet-mapping>
   <listener>
-  	<listener-class>servlets.BootServlet</listener-class>
+    <listener-class>servlets.BootServlet</listener-class>
   </listener>
   <welcome-file-list>
-    <welcome-file>StudentControllerServlet</welcome-file>
-    <welcome-file>index.jsp</welcome-file>
-    <welcome-file>index.html</welcome-file>
+    <welcome-file>UploadServlet</welcome-file>
   </welcome-file-list>
 </web-app>
