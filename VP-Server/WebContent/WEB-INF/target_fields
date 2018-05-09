@@ -1,4 +1,47 @@
-trade currency
-interest rate
-coupon
-notional
+ID	
+ValuationDay	
+Product type	
+Currency	 
+FX for repoting 	 
+Leg1_Index 	 
+Discounting Type 	
+Client Clean	
+Client Accrued	
+Client Dirty Value	
+Long	
+SwapStartDate	
+SwapEndDate	
+Leg1_Typ	
+Leg1_Rate	
+Leg1_Notional	
+Leg1_Frequency	
+Leg1_Margin	
+Leg1_Convention	
+Leg1_Acc_method	
+Leg1_Days_prior_fixed	
+Leg1_Bdc	
+Leg1_Stub_long	
+Leg1_Stub_start	Leg1_Holiday	
+Leg2_Typ	 
+Leg2_Notional 	
+Leg2_Rate	
+Leg2_Frequency	
+Leg2_Margin	
+Leg2_Convention	
+Leg2_Acc_method	
+Leg2_Days_prior_fixed	
+Leg2_Bdc	
+Leg2_Stub_long	
+Leg2_Stub_start	
+Leg2_Holiday	
+Leg1_Multiplier	
+Leg1_Cap	
+Leg1_Floor	
+Leg2_Multiplier	
+Leg2_Cap	
+Leg2_Floor	
+isCallable	
+OptionHolder	
+CallStartDate	
+CallEndDate	
+CallFrequency

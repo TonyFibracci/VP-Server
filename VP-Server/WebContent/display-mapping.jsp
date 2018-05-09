@@ -1,20 +1,78 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<!DOCTYPE html>
 <html>
+
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	<title>Mapping Information</title>
+	<title>Visual Portfolio Benchmarking</title>
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/4.1/examples/jumbotron/jumbotron.css" rel="stylesheet">
+	<link type="text/css" rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-	<h1> Mapping </h1>
-	<table>
-		<tbody>
-			<tr>
-				<td>Input</td>
-				<td>Target</td>
-			</tr>
-		</tbody>
-	</table>
+
+	<div id="wrapper">
+		<div id="header">
+			<h2>Visual Portfolio Benchmarking</h2>
+		</div>
+	</div>
+
+	<div id="container">
+	
+		<div id="content">
+			<form action="UploadServlet" method="POST">
+		
+				<!-- put new button: Add Student -->
+				<input type="hidden" name="command" value="MAP"/>
+				<input type="hidden" name="targetField" value="${TARGET_FIELD}" />
+				<input type="submit" value="save" name="save"
+					   class="add-student-button"
+				/>
+				
+				<table>
+				
+					<tr>
+						<th>${TARGET_FIELD}</th>
+						<th>${INPUT_FIELD}</th>
+					</tr>
+					
+					<c:forEach var="targetValue" items="${TARGET_VALUE_SET}">
+																			
+						<tr>
+							<td> ${targetValue} </td>
+	 						<td>  
+								<select name="${targetValue}">
+									<option disabled selected value> -- select an option -- </option>
+	    							<c:forEach var="inputValue" items="${INPUT_VALUE_SET}">
+	        							<option value="${inputValue}"><c:out value="${inputValue}" /></option>
+	    							</c:forEach>
+								</select>
+							</td> 
+						</tr>
+					
+					</c:forEach>
+					
+				</table>
+			</form>
+		
+		</div>
+		<c:url var="tempLink" value="UploadServlet">
+			<c:param name="command" value="CONTINUE" />
+		</c:url>
+		<p>
+			<a href="${tempLink}">Back to List</a>
+		</p>
+	</div>
 </body>
+
+
 </html>
+
+
+
+
+
+
+
+

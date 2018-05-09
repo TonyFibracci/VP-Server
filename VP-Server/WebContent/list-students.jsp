@@ -5,8 +5,8 @@
 
 <head>
 	<title>Visual Portfolio Benchmarking</title>
-	<link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/4.1/examples/jumbotron/jumbotron.css" rel="stylesheet">
 	<link type="text/css" rel="stylesheet" href="css/style.css">
 </head>
 
@@ -24,11 +24,8 @@
 			<form action="UploadServlet" method="GET">
 		
 				<!-- put new button: Add Student -->
-				<input type="hidden" name="command" value="export"/>
-				<input type="submit" value="Export" name="export"
-					   action="display-mapping.jsp"
-					   class="add-student-button"
-				/>
+				<input type="hidden" name="command" value="CONTINUE"/>
+				<input type="submit" value="Continue" class="add-student-button"/>
 				
 				<table>
 				
@@ -40,10 +37,11 @@
 					<c:forEach var="tempField" items="${TARGET_FIELDS}">
 						
 						<!-- set up a link for each student -->
-	<%-- 					<c:url var="tempLink" value="StudentControllerServlet"> --%>
-	<%-- 						<c:param name="command" value="LOAD" /> --%>
-	<%-- 						<c:param name="studentId" value="${tempStudent.id}" /> --%>
-	<%-- 					</c:url> --%>
+						<c:url var="tempLink" value="UploadServlet">
+							<c:param name="command" value="LOAD" />
+							<c:param name="targetField" value="${tempField}" />
+							<c:param name="inputField" value="${tempField}" />
+						</c:url>
 	
 	<!-- 					 set up a link to delete a student -->
 	<%-- 					<c:url var="deleteLink" value="StudentControllerServlet"> --%>
@@ -69,7 +67,9 @@
 			</form>
 		
 		</div>
-	
+		<p>
+			<a href="UploadServlet">Back to Start</a>
+		</p>
 	</div>
 </body>
 
