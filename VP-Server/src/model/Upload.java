@@ -12,13 +12,14 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.Session;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.google.gson.Gson;
 
-
+@XmlRootElement
 @Entity
 @Table(name = "tbl_upload")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)

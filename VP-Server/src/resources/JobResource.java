@@ -37,4 +37,9 @@ public class JobResource {
 	public void deleteJob(@PathParam("jobId") int id) {
 		JobService.deleteJob(id);
 	}
+	
+	@Path("/{jobId}/uploads")
+	public UploadResource getUploadResource() {
+		return new UploadResource();
+	}
 }

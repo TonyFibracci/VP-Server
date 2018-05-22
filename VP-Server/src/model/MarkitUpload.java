@@ -6,8 +6,9 @@ import java.util.List;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlRootElement;
 
-
+@XmlRootElement
 @Entity
 @DiscriminatorValue("MARKIT")
 public class MarkitUpload extends Upload {
