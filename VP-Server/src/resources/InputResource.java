@@ -21,10 +21,10 @@ import service.InputLoader;
 import service.OutputWriter;
 
 @Path("/input")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
 public class InputResource {
 
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	@POST
 	public Response postInput(InputMessage message){
 		try {
@@ -36,10 +36,13 @@ public class InputResource {
 		return Response.status(Status.OK).build();	
 	}
 	
-//	@POST
-//	public void addJob(Job job) {
-//		JobService.addJob(job);
-//	}
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.TEXT_PLAIN)
+	@GET
+	@Path("/{userName}")
+	public String getActiveInput(@PathParam("userName") String userName) {
+		return InputLoader.getActiveInput(userName);
+	}
 //	
 //	
 //	@DELETE

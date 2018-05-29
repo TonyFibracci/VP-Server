@@ -4,6 +4,7 @@ public class OutputMessage {
 	
 	private Job job;
 	private String outputPath;
+	private String priceCategory;
 	private boolean bloomberg;
 	private boolean isp;
 	private boolean markit;
@@ -39,6 +40,12 @@ public class OutputMessage {
 	}
 	public void setMarkit(boolean markit) {
 		this.markit = markit;
+	}
+	public String getPriceCategory() {
+		return priceCategory;
+	}
+	public void setPriceCategory(String priceCategory) {
+		this.priceCategory = priceCategory;
 	}
 	
 	

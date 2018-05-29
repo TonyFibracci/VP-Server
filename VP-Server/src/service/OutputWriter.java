@@ -116,9 +116,9 @@ public class OutputWriter {
 	    int numColumns = rsmd.getColumnCount();
 	    
 
-	    SXSSFSheet eyValuationResults = workbook.createSheet(sheetName);
-	    eyValuationResults.setTabColor(IndexedColors.LIGHT_GREEN.getIndex());
-	    eyValuationResults.setRandomAccessWindowSize(100);
+	    SXSSFSheet currentSheet = workbook.createSheet(sheetName);
+	    currentSheet.setTabColor(IndexedColors.LIGHT_GREEN.getIndex());
+	    currentSheet.setRandomAccessWindowSize(100);
 	    
 	    CellStyle wrapText = workbook.createCellStyle();
 	    wrapText.setAlignment(HorizontalAlignment.CENTER);
@@ -135,7 +135,7 @@ public class OutputWriter {
 	    yellowHeader.cloneStyleFrom(wrapText);
 	    yellowHeader.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
 	    
-	    SXSSFRow rowHead = eyValuationResults.createRow(0);
+	    SXSSFRow rowHead = currentSheet.createRow(0);
 	    for(int a = 0; a < numColumns; a++) {
 	    	String colName = rsmd.getColumnName(a+1);
 	    	SXSSFCell cell = rowHead.createCell(a);
@@ -153,7 +153,7 @@ public class OutputWriter {
 //	    }
 	    int i = 1;
 	    while (rs.next()){
-	    	SXSSFRow row = eyValuationResults.createRow(i);
+	    	SXSSFRow row = currentSheet.createRow(i);
 	    	for(int a = 0; a < numColumns; a++) {
 	    		SXSSFCell cell = row.createCell(a);
 //	    		cell.setCellStyle(style);
@@ -168,13 +168,14 @@ public class OutputWriter {
 	        i++;
 	        System.out.println(i);
 	    }
-	    eyValuationResults.createFreezePane(0, 1);
+	    currentSheet.createFreezePane(0, 1);
 	}
 	
 	
 	private void writeCoverPage() throws IOException {
 		SXSSFSheet coverPage = workbook.createSheet("Cover Page");
 		coverPage.setTabColor(IndexedColors.YELLOW1.getIndex());
+		coverPage.setRandomAccessWindowSize(100);
 		
 	    //add EY logo
 	    SXSSFDrawing eyLogo = coverPage.createDrawingPatriarch();
@@ -348,13 +349,19 @@ public class OutputWriter {
 	
 	private void export() {
 		try {
+			System.out.println("start coverpage");
 			writeCoverPage();
+			System.out.println("coverpage done");
 			writeValuationResults();
+			System.out.println("valuation results done");
 			writeLargestPriceDeviations();
+			System.out.println("largest price devs done");
 			writeLargestMarketValueDeviations();
+			System.out.println("largest market devs done");
 		    //SXSSFSheet largestPriceDeviations = workbook.createSheet("Largest Price Deviations");
 		    //SXSSFSheet largestMarketValueDeviations = workbook.createSheet("Largest Market Value Deviations");
 		    writeNotCoveredPositions();
+		    System.out.println("not covered done");
 		    //SXSSFSheet notCoveredPositions = workbook.createSheet("Not Covered Positions");
 		    SXSSFSheet dataPreparation = workbook.createSheet("Data Preparation");
 		    SXSSFSheet excludedPositions = workbook.createSheet("Excluded Positions");
@@ -395,6 +402,7 @@ public class OutputWriter {
 					"inputTable=" + INPUT_PREFIX + message.getJob().getPreparer().getId(),
 					"outputTable=" + OUTPUT_PREFIX + message.getJob().getPreparer().getId(),
 					"currency=" + message.getJob().getCurrency(),
+					"priceCategory=" + message.getPriceCategory(),
 					"-i",
 					SCRIPT_PATH).start();
 			evaluation.waitFor();

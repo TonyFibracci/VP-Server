@@ -59,6 +59,7 @@ public class InputLoader {
 		mapSecId();
 		defineNewSecID();
 		mapSecId();
+		updateActiveJob();
 	}
 	
 	private void createTable() {
@@ -96,6 +97,24 @@ public class InputLoader {
 		}
 	}
 	
+	private void updateActiveJob() {
+		String queryString = "IF NOT EXISTS (SELECT username FROM tbl_UserActiveJob WHERE username = '"
+				+ inputMessage.getUserName() + "') "
+				+ "INSERT INTO tbl_UserActiveJob (username, jobId) VALUES('"
+				+ inputMessage.getUserName() + "', "
+				+ inputMessage.getJob().getId() + ") "
+				+ "ELSE UPDATE tbl_UserActiveJob SET jobId = " + inputMessage.getJob().getId()
+				+ " WHERE username = '" + inputMessage.getUserName() + "'";
+		Session session = HibernateUtil.getSessionFactory().openSession();	
+		try {		
+			session.beginTransaction();
+			Query query = session.createNativeQuery(queryString);
+			query.executeUpdate();
+		} finally {
+			session.close();
+		}
+	}
+	
 	private void defineNewSecID() {
 		String queryString = "SELECT MAX(SecID) FROM map_secID";
 		String queryString2 = "SELECT ISIN FROM " + tableName + " WHERE SecID is null";
@@ -123,6 +142,22 @@ public class InputLoader {
 			session.close();
 		}
 		
+	}
+	
+	public static String getActiveInput(String userName) {
+		String queryString = "SELECT j.customer FROM tbl_UserActiveJob u INNER JOIN tbl_job j ON u.jobId = j.id";
+		Session session = HibernateUtil.getSessionFactory().openSession();	
+		try {		
+			session.beginTransaction();
+			Query query = session.createNativeQuery(queryString);
+			List<Object> resList = query.getResultList();
+			if(resList.size() > 0)
+				return (String) query.getResultList().get(0);
+			else
+				return null;
+		} finally {
+			session.close();
+		}
 	}
 	
 

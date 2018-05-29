@@ -4,6 +4,7 @@ public class InputMessage {
 	
 	private String userName;
 	private String inputPath;
+	private Job job;
 	
 	public String getUserName() {
 		return userName;
@@ -16,6 +17,12 @@ public class InputMessage {
 	}
 	public void setInputPath(String inputPath) {
 		this.inputPath = inputPath;
+	}
+	public Job getJob() {
+		return job;
+	}
+	public void setJob(Job job) {
+		this.job = job;
 	}
 	
 	
