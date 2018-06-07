@@ -1,6 +1,7 @@
 package resources;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -15,6 +16,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
 import model.InputMessage;
 import model.OutputMessage;
 import service.InputLoader;
@@ -23,12 +26,14 @@ import service.OutputWriter;
 @Path("/input")
 public class InputResource {
 
-	@Consumes(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	@POST
-	public Response postInput(InputMessage message){
+	public Response postInput(
+			@FormDataParam("message") InputMessage message, 
+			@FormDataParam("file") InputStream fileInputStream){
 		try {
-			new InputLoader(message);
+			new InputLoader(message, fileInputStream);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

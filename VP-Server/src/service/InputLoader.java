@@ -1,6 +1,7 @@
 package service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,11 +23,11 @@ public class InputLoader {
 	private InputMessage inputMessage;
 	private String tableName;
 	
-	public InputLoader(InputMessage message) throws IOException {
+	public InputLoader(InputMessage message, InputStream inputStream) throws IOException {
 		this.inputMessage = message;
 		tableName = OutputWriter.INPUT_PREFIX + inputMessage.getUserName();
 		createTable();
-		XSSFWorkbook workbook = new XSSFWorkbook(inputMessage.getInputPath());
+		XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
 		XSSFSheet sheet = workbook.getSheetAt(0);
 		int numberOfRows = sheet.getPhysicalNumberOfRows();
 //		List<String> sheetNames = new ArrayList<String>();
