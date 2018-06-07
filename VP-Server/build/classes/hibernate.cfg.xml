@@ -8,7 +8,7 @@
 
         <!-- JDBC Database connection settings -->
         <property name="connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
-        <property name="connection.url">jdbc:sqlserver://DE2236240W1\SQLEXPRESS2014;databaseName=MarketDB;integratedSecurity=true</property>
+        <property name="connection.url">jdbc:sqlserver://DEFRALOANER930\SQLEXPRESS2014;databaseName=MarketDB;integratedSecurity=true</property>
         <!--  <property name="connection.url">jdbc:sqlserver://10.101.152.189\SQLEXPRESS2014;databaseName=MarketDB;integratedSecurity=true</property>-->
 
         <!-- JDBC connection pool settings ... using built-in test pool -->

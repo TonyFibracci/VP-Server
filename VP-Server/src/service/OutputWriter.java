@@ -41,6 +41,7 @@ import com.google.gson.JsonObject;
 
 import model.GlobalConstants;
 import model.OutputMessage;
+import model.User;
 import utils.StringUtil;
 
 
@@ -224,8 +225,18 @@ public class OutputWriter {
 	    coverPage.getRow(2).getCell(8).setCellValue(message.getJob().getCustomer());
 	    coverPage.getRow(4).getCell(8).setCellValue(StringUtil.convertDateFormat(message.getJob().getPricingDay()));
 	    coverPage.getRow(6).getCell(8).setCellValue(message.getJob().getCurrency());
-	    coverPage.getRow(8).getCell(8).setCellValue(message.getJob().getPreparer().getFirstname() + " " + message.getJob().getPreparer().getLastname());
-	    coverPage.getRow(10).getCell(8).setCellValue(message.getJob().getReviewer().getFirstname() + " " + message.getJob().getReviewer().getLastname());
+	    
+	    User preparer = message.getJob().getPreparer();
+	    if(preparer == null)
+	    	coverPage.getRow(8).getCell(8).setCellValue("");
+	    else
+	    	coverPage.getRow(8).getCell(8).setCellValue(message.getJob().getPreparer().getFirstname() + " " + message.getJob().getPreparer().getLastname());
+	    	
+	    User reviewer = message.getJob().getReviewer();
+	    if(reviewer == null)
+	    	coverPage.getRow(10).getCell(8).setCellValue("");
+	    else
+	    	coverPage.getRow(10).getCell(8).setCellValue(message.getJob().getReviewer().getFirstname() + " " + message.getJob().getReviewer().getLastname());
 	    
 	    CellStyle centerAlign = workbook.createCellStyle();
 	    coverPage.addMergedRegion(new CellRangeAddress(15, 15, 0, 4));

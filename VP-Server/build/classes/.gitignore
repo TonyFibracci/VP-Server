@@ -1,7 +1,6 @@
-/com/
-/database/
 /model/
-/resources/
 /service/
 /servlets/
 /utils/
+/resources/
+/com/

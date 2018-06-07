@@ -36,6 +36,19 @@ public class InputResource {
 		return Response.status(Status.OK).build();	
 	}
 	
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
+//	@POST
+//	public Response postInput(InputMessage message){
+//		try {
+//			new InputLoader(message);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return Response.status(Status.OK).build();	
+//	}
+	
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.TEXT_PLAIN)
 	@GET

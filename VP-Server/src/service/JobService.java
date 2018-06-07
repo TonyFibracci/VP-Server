@@ -14,14 +14,26 @@ import model.User;
 
 public class JobService {
 	
-	public static List<Job> getAllJobs(){
+	public static List<Job> getAllJobs(String userId){
 		Session session = HibernateUtil.getSessionFactory().openSession();	
 		try {		
 			session.beginTransaction();
-			Query query = session.createNativeQuery("SELECT * FROM tbl_Job").addEntity(Job.class);
-			//session.getTransaction().commit();	
-			List<Job> res =  query.getResultList();
-			return res;
+			Query queryIsAdmin = session.createNativeQuery("SELECT admin FROM map_User WHERE ID = :user");
+			queryIsAdmin.setParameter("user", userId);
+			boolean admin = (boolean) queryIsAdmin.getResultList().get(0);
+			
+			if(admin) {
+				Query query = session.createNativeQuery("SELECT * FROM tbl_Job").addEntity(Job.class);
+				List<Job> res =  query.getResultList();
+				return res;
+			}
+			else {
+				Query query = session.createNativeQuery("SELECT * FROM tbl_Job WHERE preparer = :user").addEntity(Job.class);
+				query.setParameter("user", userId);
+				List<Job> res =  query.getResultList();
+				return res;
+			}
+			
 		} finally {
 			session.close();
 		}	

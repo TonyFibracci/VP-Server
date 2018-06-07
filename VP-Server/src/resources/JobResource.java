@@ -22,8 +22,9 @@ import service.JobService;
 public class JobResource {
 
 	@GET
-	public List<Job> getJobs(){
-		return JobService.getAllJobs();		
+	@Path("/{user}")
+	public List<Job> getJobs(@PathParam("user") String userId){
+		return JobService.getAllJobs(userId);		
 	}
 	
 	@POST
