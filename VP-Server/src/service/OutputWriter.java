@@ -62,6 +62,16 @@ public class OutputWriter {
 	    workbook.setCompressTempFiles(true);
 	}
 	
+	private void writeValuationResultsPreparer() throws SQLException {
+		String outputTable = OUTPUT_PREFIX + message.getJob().getPreparer().getId();
+		Connection myConn = null;
+		myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
+	    Statement st = myConn.createStatement();
+	    String sheetName = "EY Valuation Results Preparer";
+	    ResultSet rs = st.executeQuery("Select * from " + outputTable);
+	    populateSheetContent(sheetName, rs);
+	}
+	
 	private void writeValuationResults() throws SQLException {
 		String outputTable = OUTPUT_PREFIX + message.getJob().getPreparer().getId();
 		Connection myConn = null;
@@ -141,17 +151,13 @@ public class OutputWriter {
 	    	String colName = rsmd.getColumnName(a+1);
 	    	SXSSFCell cell = rowHead.createCell(a);
 	    	cell.setCellValue(colName);
-	    	if(a == 3)
+	    	if(a == 5)
 	    		cell.setCellStyle(yellowHeader);
 	    	else if(a>1 && a<11)
 	    		cell.setCellStyle(greyHeader);
 	    	else
 	    		cell.setCellStyle(wrapText);
 	    }
-//	    spreadsheet.trackAllColumnsForAutoSizing();
-//	    for(int a = 0; a < numColumns; a++) {
-//	    	spreadsheet.autoSizeColumn(a+1);
-//	    }
 	    int i = 1;
 	    while (rs.next()){
 	    	SXSSFRow row = currentSheet.createRow(i);
@@ -168,6 +174,22 @@ public class OutputWriter {
 	    	}
 	        i++;
 	        System.out.println(i);
+	    }
+	    SXSSFRow dummyrow = currentSheet.createRow(i);
+	    for(int a = 0; a < numColumns; a++) {
+	    	String colName = rsmd.getColumnName(a+1);
+	    	SXSSFCell cell = dummyrow.createCell(a);
+	    	cell.setCellValue(colName);
+	    	if(a == 5)
+	    		cell.setCellStyle(yellowHeader);
+	    	else if(a>1 && a<11)
+	    		cell.setCellStyle(greyHeader);
+	    	else
+	    		cell.setCellStyle(wrapText);
+	    }
+	    currentSheet.trackAllColumnsForAutoSizing();
+	    for(int a = 0; a < numColumns; a++) {
+	    	currentSheet.autoSizeColumn(a+1);
 	    }
 	    currentSheet.createFreezePane(0, 1);
 	}
@@ -363,7 +385,7 @@ public class OutputWriter {
 			System.out.println("start coverpage");
 			writeCoverPage();
 			System.out.println("coverpage done");
-			writeValuationResults();
+			writeValuationResultsPreparer();
 			System.out.println("valuation results done");
 			writeLargestPriceDeviations();
 			System.out.println("largest price devs done");

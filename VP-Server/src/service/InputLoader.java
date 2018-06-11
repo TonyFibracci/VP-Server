@@ -35,19 +35,29 @@ public class InputLoader {
 		Transaction tx = session.beginTransaction();
 		for (int i = 1; i < numberOfRows; i++) {
 			XSSFRow row = sheet.getRow(i);
+			int eyNr = (int) row.getCell(0).getNumericCellValue();
 			String isin = row.getCell(1).getStringCellValue();
+			String description = ""; 
+			if(row.getCell(2) != null)
+				description = row.getCell(2).getStringCellValue();
 			String toP = row.getCell(4).getStringCellValue();
 			double valuatioQuote = row.getCell(5).getNumericCellValue();
 			double nominal = row.getCell(6).getNumericCellValue();
 			String shortLong = row.getCell(7).getStringCellValue();
+			String eyComment = "";
+			if(row.getCell(8) != null)
+				eyComment = row.getCell(8).getStringCellValue();
 			String queryString = "INSERT INTO "
 					+ tableName + 
-					" (SecID, ISIN, [Valuation quote], Nominal, [Type of Price], ShortLongFlag) VALUES (NULL,'" + 
-					isin + "'," +
+					" (EY_No, SecID, ISIN, [Client Security Description], [Valuation quote], Nominal, [Type of Price], ShortLongFlag, [EY_Comment]) VALUES (NULL,"
+					+ eyNr + ",'" + 
+					isin + "','" +
+					description + "'," +
 					valuatioQuote + "," +
 					nominal + ",'" + 
 					toP + "','" + 
-					shortLong + "')";
+					shortLong + "','" +
+					eyComment + "')";
 			
 			Query query = session.createNativeQuery(queryString);
 			query.executeUpdate();
@@ -73,7 +83,7 @@ public class InputLoader {
 				"BEGIN " + 
 				"CREATE Table "
 				+ tableName
-				+ " (SecID int, ISIN varchar(12), [Valuation quote] float, Nominal float, [Type of Price] varchar(10), ShortLongFlag varchar(10)) " + 
+				+ " (EY_No int, SecID int, ISIN varchar(12), [Client Security Description] nvarchar(255), [Valuation quote] float, Nominal float, [Type of Price] varchar(10), ShortLongFlag varchar(10), EY_Comment nvarchar(255)) " + 
 				"END ELSE DELETE FROM " +
 				tableName;
 		Session session = HibernateUtil.getSessionFactory().openSession();	

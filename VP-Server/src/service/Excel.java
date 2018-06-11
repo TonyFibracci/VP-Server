@@ -61,7 +61,7 @@ public class Excel {
 		myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 	    Statement st = myConn.createStatement();
     	ResultSet isins = st.executeQuery(
-	    		"SELECT BB_ID_ISIN "
+	    		"SELECT ISIN "
 	    		+ "FROM " + table 
 	    		+ " WHERE [Type of price] = 'Percent'"
 	    		+ " AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
@@ -90,7 +90,7 @@ public class Excel {
 	    }
 	    for(String currency : currencies) {
 	    	ResultSet isins = st.executeQuery(
-		    		"SELECT DISTINCT BB_ID_ISIN "
+		    		"SELECT DISTINCT ISIN "
 		    		+ "FROM " + table 
 		    		+ " WHERE BB_CRNCY = '" + currency
 		    		+ "' AND [Type of price] = 'Percent'"
@@ -105,7 +105,7 @@ public class Excel {
 	    }
 	    //output ISINs without master data
     	ResultSet isins = st.executeQuery(
-	    		"SELECT DISTINCT BB_ID_ISIN "
+	    		"SELECT DISTINCT ISIN "
 	    		+ "FROM " + table 
 	    		+ " WHERE BB_CRNCY IS NULL"
 	    		+ " AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
@@ -118,7 +118,7 @@ public class Excel {
 	    }
 	    //output equities
     	isins = st.executeQuery(
-	    		"SELECT DISTINCT BB_ID_ISIN "
+	    		"SELECT DISTINCT ISIN "
 	    		+ "FROM " + table 
 	    		+ " WHERE [Type of price] = 'Piece'"
 	    		+ " AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
@@ -163,7 +163,7 @@ public class Excel {
 	    sb.append("END-OF-FIELDS").append("\n");
 	    sb.append("START-OF-DATA").append("\n");
 	    ResultSet isins = st.executeQuery(
-	    		"SELECT DISTINCT BB_ID_ISIN "
+	    		"SELECT DISTINCT ISIN "
 	    		+ "FROM " + table 
 	    		+ " WHERE BB_CRNCY IS NULL");
 	    if((!isins.isBeforeFirst()))
@@ -225,7 +225,7 @@ public class Excel {
 	    sb.append("END-OF-FIELDS").append("\n");
 	    sb.append("START-OF-DATA").append("\n");
 	    ResultSet isins = st.executeQuery(
-	    		"SELECT DISTINCT BB_ID_ISIN "
+	    		"SELECT DISTINCT ISIN "
 	    		+ "FROM " + table 
 	    		+ " WHERE [Type of price] = 'Piece' "
 	    		+ "AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
@@ -285,7 +285,7 @@ public class Excel {
 	    sb.append("END-OF-FIELDS").append("\n");
 	    sb.append("START-OF-DATA").append("\n");
 	    ResultSet isins = st.executeQuery(
-	    		"SELECT DISTINCT BB_ID_ISIN "
+	    		"SELECT DISTINCT ISIN "
 	    		+ "FROM " + table 
 	    		+ " WHERE [Type of price] = 'Percent' "
 	    		+ "AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
