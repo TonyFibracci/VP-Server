@@ -105,6 +105,15 @@ public class OutputWriter {
 	    int numberToBeDisplayed = (numberTopPercent > 10) ? numberTopPercent : 10;
 	    rs = st.executeQuery("Select TOP (" + numberToBeDisplayed +") * from " + outputTable + " Order by EY_Price_Deviation_Percent desc");
 	    populateSheetContent(sheetName, rs);
+	    SXSSFSheet sheet = workbook.getSheet(sheetName);
+	    CellStyle redCellStyle = workbook.createCellStyle();
+	    redCellStyle.setAlignment(HorizontalAlignment.CENTER);
+	    redCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+	    redCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
+	    redCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    for(int i = 0; i < numberToBeDisplayed + 1; i++) {
+	    	sheet.getRow(i).getCell(7).setCellStyle(redCellStyle);
+	    }
 	}
 	
 	private void writeLargestMarketValueDeviations() throws SQLException {
@@ -120,6 +129,15 @@ public class OutputWriter {
 	    int numberToBeDisplayed = (numberTopPercent > 10) ? numberTopPercent : 10;
 	    rs = st.executeQuery("Select TOP (" + numberToBeDisplayed +") * from " + outputTable + " Order by EY_MarketValue_Deviation desc");
 	    populateSheetContent(sheetName, rs);
+	    SXSSFSheet sheet = workbook.getSheet(sheetName);
+	    CellStyle redCellStyle = workbook.createCellStyle();
+	    redCellStyle.setAlignment(HorizontalAlignment.CENTER);
+	    redCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+	    redCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
+	    redCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    for(int i = 0; i < numberToBeDisplayed + 1; i++) {
+	    	sheet.getRow(i).getCell(10).setCellStyle(redCellStyle);
+	    }
 	}
 
 	private void populateSheetContent(String sheetName, ResultSet rs) throws SQLException {
@@ -175,6 +193,8 @@ public class OutputWriter {
 	        i++;
 	        System.out.println(i);
 	    }
+	    
+	    //WORKAROUND: set last row with headers because autosizecolumn doesnt work on first row
 	    SXSSFRow dummyrow = currentSheet.createRow(i);
 	    for(int a = 0; a < numColumns; a++) {
 	    	String colName = rsmd.getColumnName(a+1);
@@ -191,6 +211,15 @@ public class OutputWriter {
 	    for(int a = 0; a < numColumns; a++) {
 	    	currentSheet.autoSizeColumn(a+1);
 	    }
+	    
+	    //delete the last row after autosizing
+	    SXSSFRow lastRow = currentSheet.getRow(i);
+	    for(int a = 0; a < numColumns; a++) {
+	    	SXSSFCell cell = lastRow.getCell(a);
+	    	cell.setCellValue("");
+	    	cell.setCellStyle(null);
+	    }
+	    
 	    currentSheet.createFreezePane(0, 1);
 	}
 	
