@@ -99,7 +99,7 @@ public class Excel {
 		    if((!isins.isBeforeFirst()))
 	    		continue;
 		    while (isins.next()){
-		    	sb.append(isins.getString(1)).append("\n");
+		    	sb.append(isins.getString(1)).append("\r\n");
 		    }  
 		    Files.write(Paths.get(path + "\\ISP_" + currency +".csv"), sb.toString().getBytes());
 	    }
@@ -112,7 +112,7 @@ public class Excel {
     	StringBuilder sb = new StringBuilder();
 	    if((isins.isBeforeFirst())) {
 		    while (isins.next()){
-		    	sb.append(isins.getString(1)).append("\n");
+		    	sb.append(isins.getString(1)).append("\r\n");
 		    }  
 		    Files.write(Paths.get(path + "\\ISP_Unknown.csv"), sb.toString().getBytes());
 	    }
@@ -125,7 +125,7 @@ public class Excel {
     	sb = new StringBuilder(); 
 	    if((isins.isBeforeFirst())) {
 		    while (isins.next()){
-		    	sb.append(isins.getString(1)).append("\n");
+		    	sb.append(isins.getString(1)).append("\r\n");
 		    }  
 		    Files.write(Paths.get(path + "\\ISP_Equity.csv"), sb.toString().getBytes());
 	    }
@@ -176,7 +176,7 @@ public class Excel {
 	    sb.append("END-OF-FILE").append("\n");
 	    System.out.println(sb.toString());
 	    String currentTime = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-	    Files.write(Paths.get(path + "\\DL_Master_" + currentTime + ".req"), sb.toString().getBytes());
+	    Files.write(Paths.get(path + "\\DL_M_" + currentTime + ".req"), sb.toString().getBytes());
 	    
 	    st.close();
 	    myConn.close();
@@ -239,7 +239,7 @@ public class Excel {
 	    sb.append("END-OF-FILE").append("\n");
 	    System.out.println(sb.toString());
 	    String currentTime = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-	    Files.write(Paths.get(path + "\\DL_Pricing_" + currentTime +".req"), sb.toString().getBytes());
+	    Files.write(Paths.get(path + "\\DL_P_" + currentTime +".req"), sb.toString().getBytes());
 	    st.close();
 	    myConn.close();
 	}

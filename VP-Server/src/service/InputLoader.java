@@ -47,10 +47,10 @@ public class InputLoader {
 			String eyComment = "";
 			if(row.getCell(8) != null)
 				eyComment = row.getCell(8).getStringCellValue();
-			String queryString = "INSERT INTO "
-					+ tableName + 
-					" (EY_No, SecID, ISIN, [Client Security Description], [Valuation quote], Nominal, [Type of Price], ShortLongFlag, [EY_Comment]) VALUES (NULL,"
-					+ eyNr + ",'" + 
+			String queryString = "INSERT INTO " +
+					tableName + 
+					" (EY_No, SecID, ISIN, [Client Security Description], [Valuation quote], Nominal, [Type of Price], ShortLongFlag, [EY_Comment]) VALUES (" +
+					eyNr + ",NULL,'" + 
 					isin + "','" +
 					description + "'," +
 					valuatioQuote + "," +
