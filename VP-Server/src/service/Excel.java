@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -56,6 +57,8 @@ import model.GlobalConstants;
 
 public class Excel {
 	
+	public static final List<String> ISP_CURRENCIES = Arrays.asList("ARA", "AUD", "CAD", "CHF", "CNY", "GBP", "HKD", "JPY", "NZD", "SGD", "USD", "UYI", "ZAR");
+	
 	public static void createMarkitRequest(String table, String path) throws SQLException, IOException{
 		Connection myConn = null;
 		myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
@@ -86,7 +89,9 @@ public class Excel {
 	    		+ " WHERE [Type of price] = 'Percent'"
 	    		+ " AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
 	    while(currencyRS.next()) {
-	    	currencies.add(currencyRS.getString(1));
+	    	String cur = currencyRS.getString(1);
+	    	if(ISP_CURRENCIES.contains(cur))
+	    		currencies.add(cur);
 	    }
 	    for(String currency : currencies) {
 	    	ResultSet isins = st.executeQuery(
@@ -120,14 +125,14 @@ public class Excel {
     	isins = st.executeQuery(
 	    		"SELECT DISTINCT ISIN "
 	    		+ "FROM " + table 
-	    		+ " WHERE [Type of price] = 'Piece'"
+	    		+ " WHERE ([Type of price] = 'Piece' OR BB_CRNCY = 'EUR')"
 	    		+ " AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
     	sb = new StringBuilder(); 
 	    if((isins.isBeforeFirst())) {
 		    while (isins.next()){
 		    	sb.append(isins.getString(1)).append("\r\n");
 		    }  
-		    Files.write(Paths.get(path + "\\ISP_Equity.csv"), sb.toString().getBytes());
+		    Files.write(Paths.get(path + "\\ISP_EUR.csv"), sb.toString().getBytes());
 	    }
 	}
 	

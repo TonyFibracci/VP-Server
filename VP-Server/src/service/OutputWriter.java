@@ -112,6 +112,8 @@ public class OutputWriter {
 	    redCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
 	    redCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    for(int i = 0; i < numberToBeDisplayed + 1; i++) {
+	    	if(sheet.getRow(i) == null)
+	    		continue;
 	    	sheet.getRow(i).getCell(7).setCellStyle(redCellStyle);
 	    }
 	}
@@ -136,6 +138,8 @@ public class OutputWriter {
 	    redCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
 	    redCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    for(int i = 0; i < numberToBeDisplayed + 1; i++) {
+	    	if(sheet.getRow(i) == null)
+	    		continue;
 	    	sheet.getRow(i).getCell(10).setCellStyle(redCellStyle);
 	    }
 	}

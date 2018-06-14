@@ -73,13 +73,14 @@ public class ImportService {
 		if(value.matches("-?\\d+(\\.\\d+)?")) {
 			String queryString = " DECLARE @SecID INT DECLARE @FieldID INT " +
 					"SET @SecID = (SELECT SecID FROM map_secID WHERE ISIN = '" + ISIN + "') " +
-					"SET @FieldID = (SELECT ID FROM def_NISPFields WHERE Field = '" + fieldName + "')" +
-					"INSERT INTO " +
+					"SET @FieldID = (SELECT ID FROM def_NISPFields WHERE Field = '" + fieldName + "') " +
+					"IF NOT EXISTS (SELECT 1 FROM " + GlobalConstants.ISP_PRICING_TABLE + " WHERE FK_SecID = @SecID AND FK_FieldID = @FieldID AND PricingDay = '" + valuationDate + "' AND PricingSource = '" + pricingSource + "') " +
+					"BEGIN INSERT INTO " +
 					GlobalConstants.ISP_PRICING_TABLE + 
 					" (FK_SecID, FK_FieldID, doubleValue, stringValue, PricingSource, PricingDay, LastUpdate) VALUES (@SecID, @FieldID," +
 					value + ",NULL,'" + 
 					pricingSource + "','" +
-					valuationDate + "', GETDATE())";
+					valuationDate + "', GETDATE()) END";
 			
 			Query query = session.createNativeQuery(queryString);
 			query.executeUpdate();
