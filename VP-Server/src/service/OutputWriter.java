@@ -34,6 +34,8 @@ import org.apache.poi.xssf.streaming.SXSSFDrawing;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -88,7 +90,7 @@ public class OutputWriter {
 		myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 	    Statement st = myConn.createStatement();
 	    String sheetName = "Not Covered Positions";
-	    ResultSet rs = st.executeQuery("Select * from " + outputTable + " WHERE EY_Price is null");
+	    ResultSet rs = st.executeQuery("Select * from " + outputTable + " WHERE [Fair Price EY] is null");
 	    populateSheetContent(sheetName, rs);
 	}
 	
@@ -98,12 +100,12 @@ public class OutputWriter {
 		myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 	    Statement st = myConn.createStatement();
 	    String sheetName = "Largest Price Deviations";
-	    ResultSet rs = st.executeQuery("Select Count(*) from " + outputTable + " WHERE EY_Price is not null");
+	    ResultSet rs = st.executeQuery("Select Count(*) from " + outputTable + " WHERE [Fair Price EY] is not null");
 	    rs.next();
 	    int numberPositions = rs.getInt(1);
 	    int numberTopPercent = (int) (numberPositions * 0.05);
 	    int numberToBeDisplayed = (numberTopPercent > 10) ? numberTopPercent : 10;
-	    rs = st.executeQuery("Select TOP (" + numberToBeDisplayed +") * from " + outputTable + " Order by EY_Price_Deviation_Percent desc");
+	    rs = st.executeQuery("Select TOP (" + numberToBeDisplayed +") * from " + outputTable + " Order by [Price Deviation Percent] desc");
 	    populateSheetContent(sheetName, rs);
 	    SXSSFSheet sheet = workbook.getSheet(sheetName);
 	    CellStyle redCellStyle = workbook.createCellStyle();
@@ -124,12 +126,12 @@ public class OutputWriter {
 		myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 	    Statement st = myConn.createStatement();
 	    String sheetName = "Largest Market Value Deviations";
-	    ResultSet rs = st.executeQuery("Select Count(*) from " + outputTable + " WHERE EY_Price is not null");
+	    ResultSet rs = st.executeQuery("Select Count(*) from " + outputTable + " WHERE [Fair Price EY] is not null");
 	    rs.next();
 	    int numberPositions = rs.getInt(1);
 	    int numberTopPercent = (int) (numberPositions * 0.05);
 	    int numberToBeDisplayed = (numberTopPercent > 10) ? numberTopPercent : 10;
-	    rs = st.executeQuery("Select TOP (" + numberToBeDisplayed +") * from " + outputTable + " Order by EY_MarketValue_Deviation desc");
+	    rs = st.executeQuery("Select TOP (" + numberToBeDisplayed +") * from " + outputTable + " Order by [Value Deviation EY] desc");
 	    populateSheetContent(sheetName, rs);
 	    SXSSFSheet sheet = workbook.getSheet(sheetName);
 	    CellStyle redCellStyle = workbook.createCellStyle();
@@ -168,6 +170,12 @@ public class OutputWriter {
 	    yellowHeader.cloneStyleFrom(wrapText);
 	    yellowHeader.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
 	    
+	    CellStyle redCellStyle = workbook.createCellStyle();
+	    redCellStyle.setAlignment(HorizontalAlignment.CENTER);
+	    redCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+	    redCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
+	    redCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    
 	    SXSSFRow rowHead = currentSheet.createRow(0);
 	    for(int a = 0; a < numColumns; a++) {
 	    	String colName = rsmd.getColumnName(a+1);
@@ -175,7 +183,7 @@ public class OutputWriter {
 	    	cell.setCellValue(colName);
 	    	if(a == 5)
 	    		cell.setCellStyle(yellowHeader);
-	    	else if(a>1 && a<11)
+	    	else if(a>2 && a<12)
 	    		cell.setCellStyle(greyHeader);
 	    	else
 	    		cell.setCellStyle(wrapText);
@@ -185,7 +193,6 @@ public class OutputWriter {
 	    	SXSSFRow row = currentSheet.createRow(i);
 	    	for(int a = 0; a < numColumns; a++) {
 	    		SXSSFCell cell = row.createCell(a);
-//	    		cell.setCellStyle(style);
 	    		String value = rs.getString(a+1);
 	    		if(NumberUtils.isCreatable(value)) {
 	    			cell.setCellType(CellType.NUMERIC);
@@ -443,6 +450,13 @@ public class OutputWriter {
 		    workbook.write(out);
 		    out.close();
 		    workbook.close();
+//		    XSSFWorkbook wb = new XSSFWorkbook(new FileInputStream(message.getOutputPath()));
+//		    XSSFSheet sheet = wb.getSheet("");
+//		    CellStyle redCellStyle = workbook.createCellStyle();
+//		    redCellStyle.setAlignment(HorizontalAlignment.CENTER);
+//		    redCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+//		    redCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
+//		    redCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -455,39 +469,45 @@ public class OutputWriter {
 	
 	public void run() {
 		try {
-			System.out.println("start calc...");
-			Process evaluation = new ProcessBuilder(
-					"sqlcmd", 
-					"-E", 
-					"-d",
-					GlobalConstants.DATABASE,
-					"-S",
-					GlobalConstants.SERVER,
-					"-v",
-					"pricingDay=" + StringUtil.convertDateFormat(message.getJob().getPricingDay()),
-					"inputTable=" + INPUT_PREFIX + message.getJob().getPreparer().getId(),
-					"outputTable=" + OUTPUT_PREFIX + message.getJob().getPreparer().getId(),
-					"currency=" + message.getJob().getCurrency(),
-					"priceCategory=" + message.getPriceCategory(),
-					"-i",
-					SCRIPT_PATH).start();
-			evaluation.waitFor();
-			System.out.println("Excel start...");
-			String outputTable = OUTPUT_PREFIX + message.getJob().getPreparer().getId();
-			String outputFolderPath = new File(message.getOutputPath()).getParentFile().getAbsolutePath();
-			if(message.isBloomberg()) {
-				Excel.createBbMasterDataRequest(outputTable, outputFolderPath);
-				Excel.createBbDLPricingRequest(outputTable, outputFolderPath, StringUtil.convertDateFormat(message.getJob().getPricingDay()));
-				Excel.createBbBVALRequest(outputTable, outputFolderPath, StringUtil.convertDateFormat(message.getJob().getPricingDay()));
-			}
-			if(message.isIsp()) {
-				Excel.createIspRequest(outputTable, outputFolderPath);
-			}
-			if(message.isMarkit()) {
-				Excel.createMarkitRequest(outputTable, outputFolderPath);
+			if(message.getStatus() == OutputMessage.STATUS_PREPARE) {
+				System.out.println("start calc...");
+				Process evaluation = new ProcessBuilder(
+						"sqlcmd", 
+						"-E", 
+						"-d",
+						GlobalConstants.DATABASE,
+						"-S",
+						GlobalConstants.SERVER,
+						"-v",
+						"pricingDay=" + StringUtil.convertDateFormat(message.getJob().getPricingDay()),
+						"inputTable=" + INPUT_PREFIX + message.getJob().getPreparer().getId(),
+						"outputTable=" + OUTPUT_PREFIX + message.getJob().getPreparer().getId(),
+						"currency=" + message.getJob().getCurrency(),
+						"priceCategory=" + message.getPriceCategory(),
+						"-i",
+						SCRIPT_PATH).start();
+				evaluation.waitFor();
+			} else if(message.getStatus() == OutputMessage.STATUS_REQUEST) {
+				System.out.println("Excel start...");
+				String outputTable = OUTPUT_PREFIX + message.getJob().getPreparer().getId();
+				String outputFolderPath = new File(message.getOutputPath()).getParentFile().getAbsolutePath();
+				if(message.isBloomberg()) {
+					Excel.createBbMasterDataRequest(outputTable, outputFolderPath);
+					Excel.createBbDLPricingRequest(outputTable, outputFolderPath, StringUtil.convertDateFormat(message.getJob().getPricingDay()));
+					Excel.createBbBVALRequest(outputTable, outputFolderPath, StringUtil.convertDateFormat(message.getJob().getPricingDay()));
+				}
+				if(message.isIsp()) {
+					Excel.createIspRequest(outputTable, outputFolderPath);
+				}
+				if(message.isMarkit()) {
+					Excel.createMarkitRequest(outputTable, outputFolderPath);
+				}
+			} else if(message.getStatus() == OutputMessage.STATUS_OUTPUT) {
+				System.out.println("Excel start...");
+				export();
 			}
 //			Excel.export(outputTable, message.getOutputPath());
-			export();
+//			export();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -8,6 +8,11 @@ public class OutputMessage {
 	private boolean bloomberg;
 	private boolean isp;
 	private boolean markit;
+	private int status;
+	
+	public static final int STATUS_PREPARE = 0;
+	public static final int STATUS_REQUEST = 1;
+	public static final int STATUS_OUTPUT = 2;
 	
 	
 	public Job getJob() {
@@ -46,6 +51,12 @@ public class OutputMessage {
 	}
 	public void setPriceCategory(String priceCategory) {
 		this.priceCategory = priceCategory;
+	}
+	public int getStatus() {
+		return status;
+	}
+	public void setStatus(int status) {
+		this.status = status;
 	}
 	
 	

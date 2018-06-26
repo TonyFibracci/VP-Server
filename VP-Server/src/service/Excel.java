@@ -67,7 +67,7 @@ public class Excel {
 	    		"SELECT ISIN "
 	    		+ "FROM " + table 
 	    		+ " WHERE [Type of price] = 'Percent'"
-	    		+ " AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
+	    		+ " AND ([Fair Price EY] is null OR EY_Price_Origin_Position = 'Last')");
     	StringBuilder sb = new StringBuilder();
 	    if((!isins.isBeforeFirst()))
     		return;
@@ -87,7 +87,7 @@ public class Excel {
 	    		"SELECT DISTINCT BB_CRNCY "
 	    		+ "FROM " + table 
 	    		+ " WHERE [Type of price] = 'Percent'"
-	    		+ " AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
+	    		+ " AND ([Fair Price EY] is null OR EY_Price_Origin_Position = 'Last')");
 	    while(currencyRS.next()) {
 	    	String cur = currencyRS.getString(1);
 	    	if(ISP_CURRENCIES.contains(cur))
@@ -99,7 +99,7 @@ public class Excel {
 		    		+ "FROM " + table 
 		    		+ " WHERE BB_CRNCY = '" + currency
 		    		+ "' AND [Type of price] = 'Percent'"
-		    		+ " AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
+		    		+ " AND ([Fair Price EY] is null OR EY_Price_Origin_Position = 'Last')");
 	    	StringBuilder sb = new StringBuilder();
 		    if((!isins.isBeforeFirst()))
 	    		continue;
@@ -113,7 +113,7 @@ public class Excel {
 	    		"SELECT DISTINCT ISIN "
 	    		+ "FROM " + table 
 	    		+ " WHERE BB_CRNCY IS NULL"
-	    		+ " AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
+	    		+ " AND ([Fair Price EY] is null OR EY_Price_Origin_Position = 'Last')");
     	StringBuilder sb = new StringBuilder();
 	    if((isins.isBeforeFirst())) {
 		    while (isins.next()){
@@ -126,7 +126,7 @@ public class Excel {
 	    		"SELECT DISTINCT ISIN "
 	    		+ "FROM " + table 
 	    		+ " WHERE ([Type of price] = 'Piece' OR BB_CRNCY = 'EUR')"
-	    		+ " AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
+	    		+ " AND ([Fair Price EY] is null OR EY_Price_Origin_Position = 'Last')");
     	sb = new StringBuilder(); 
 	    if((isins.isBeforeFirst())) {
 		    while (isins.next()){
@@ -233,7 +233,7 @@ public class Excel {
 	    		"SELECT DISTINCT ISIN "
 	    		+ "FROM " + table 
 	    		+ " WHERE [Type of price] = 'Piece' "
-	    		+ "AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
+	    		+ "AND ([Fair Price EY] is null OR EY_Price_Origin_Position = 'Last')");
 	    if((!isins.isBeforeFirst()))
 	    		return;
 	    while (isins.next()){
@@ -293,7 +293,7 @@ public class Excel {
 	    		"SELECT DISTINCT ISIN "
 	    		+ "FROM " + table 
 	    		+ " WHERE [Type of price] = 'Percent' "
-	    		+ "AND (EY_Price is null OR EY_Price_Origin_Position = 'Last')");
+	    		+ "AND ([Fair Price EY] is null OR EY_Price_Origin_Position = 'Last')");
 	    if((!isins.isBeforeFirst()))
     		return;
 	    while (isins.next()){
