@@ -49,7 +49,7 @@ import utils.StringUtil;
 
 public class OutputWriter {
 	
-	private static final String SCRIPT_PATH = "C:\\Users\\DESLU001\\Documents\\SQL Server Management Studio\\outputScript2.sql";
+	private static final String SCRIPT_PATH = "C:\\Users\\deslu001\\Documents\\SQL Server Management Studio\\outputScript3.sql";
 	public static final String OUTPUT_PREFIX = "OUTPUT_";
 	public static final String INPUT_PREFIX = "DTP_";
 	
@@ -74,13 +74,26 @@ public class OutputWriter {
 	    populateSheetContent(sheetName, rs);
 	}
 	
-	private void writeValuationResults() throws SQLException {
+	private void writeValuationResultsClient() throws SQLException {
 		String outputTable = OUTPUT_PREFIX + message.getJob().getPreparer().getId();
 		Connection myConn = null;
 		myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 	    Statement st = myConn.createStatement();
-	    String sheetName = "EY Valuation Results";
-	    ResultSet rs = st.executeQuery("Select * from " + outputTable);
+	    String sheetName = "EY Valuation Results Client";
+	    ResultSet fieldOrderRs = st.executeQuery("Select * from tbl_FieldSelection Where Client_Selection = 1 order by Sort");
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("Select ");
+	    boolean start = true;
+	    while(fieldOrderRs.next()) {
+	    	if(!start)
+	    		sb.append(",");
+	    	String fieldName = fieldOrderRs.getString(1);
+	    	sb.append("[").append(fieldName).append("]");
+	    	start = false;
+	    }
+	    sb.append(" from " + outputTable);
+	    ResultSet rs = st.executeQuery(sb.toString());
+	    
 	    populateSheetContent(sheetName, rs);
 	}
 	
@@ -426,6 +439,8 @@ public class OutputWriter {
 			writeCoverPage();
 			System.out.println("coverpage done");
 			writeValuationResultsPreparer();
+			System.out.println("Client results");
+			writeValuationResultsClient();
 			System.out.println("valuation results done");
 			writeLargestPriceDeviations();
 			System.out.println("largest price devs done");
@@ -471,6 +486,7 @@ public class OutputWriter {
 		try {
 			if(message.getStatus() == OutputMessage.STATUS_PREPARE) {
 				System.out.println("start calc...");
+				System.out.println(GlobalConstants.SERVER);
 				Process evaluation = new ProcessBuilder(
 						"sqlcmd", 
 						"-E", 
@@ -490,7 +506,7 @@ public class OutputWriter {
 			} else if(message.getStatus() == OutputMessage.STATUS_REQUEST) {
 				System.out.println("Excel start...");
 				String outputTable = OUTPUT_PREFIX + message.getJob().getPreparer().getId();
-				String outputFolderPath = new File(message.getOutputPath()).getParentFile().getAbsolutePath();
+				String outputFolderPath = message.getOutputPath();
 				if(message.isBloomberg()) {
 					Excel.createBbMasterDataRequest(outputTable, outputFolderPath);
 					Excel.createBbDLPricingRequest(outputTable, outputFolderPath, StringUtil.convertDateFormat(message.getJob().getPricingDay()));
