@@ -1,7 +1,17 @@
 package service;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.persistence.Query;
 
@@ -12,6 +22,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import database.HibernateUtil;
+import database.JDBCUtil;
 import model.GlobalConstants;
 
 public class ImportService {
@@ -85,6 +96,50 @@ public class ImportService {
 			Query query = session.createNativeQuery(queryString);
 			query.executeUpdate();
 		}
+	}
+
+	public static void importNAV(InputStream fileInputStream, String userName) throws Exception {
+	    File targetFile = new File("targetFile_" + userName + ".csv");
+	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
+	    		  .lines().collect(Collectors.joining("\n")); 
+	    String content = createSqlServerCompatibleFile(result);
+	    Files.write(targetFile.toPath(), content.getBytes());
+	    
+	    List<String> fields = new ArrayList<String>();
+	    fields.add("PX_LAST");
+	    fields.add("PX_VOLUME");
+	    fields.add("PX_ASK");
+	    fields.add("PX_BID");
+	    fields.add("PX_FIXING");
+	    fields.add("PX_MID");
+	    fields.add("FUND_NET_ASSET_VAL");
+	    
+	    JDBCUtil dbUtil = new JDBCUtil(userName);
+	    dbUtil.createHistoricalTable(fields);
+	    dbUtil.importCsvBcp(targetFile.getAbsolutePath());
+	    dbUtil.importHistoricalTable(GlobalConstants.BLOOMBERG_PRICING_TABLE); 
+		
+	}
+	
+	private static String createSqlServerCompatibleFile(String input) {
+		String content = input;
+		Pattern p = Pattern.compile("\"([^\"]*)\"");
+		Matcher m = p.matcher(content);
+		StringBuffer sb = new StringBuffer();
+		while (m.find()) {
+		  String text = m.group(1);
+		  text = text.replaceAll(";", "|");
+		  m.appendReplacement(sb, Matcher.quoteReplacement(text));
+		}
+		m.appendTail(sb);
+		content = sb.toString();
+		content = content.replace("\"", "");
+		content = content.replace("N.A.", "");
+		content = content.replace("N.S.", "");
+		content = content.replace("N.D.", "");
+		//add carriage return to all line breaks
+		content = content.replaceAll(";\\s*$", "").replaceAll(";\\s*\n", "\r\n");	
+		return content;
 	}
 
 }

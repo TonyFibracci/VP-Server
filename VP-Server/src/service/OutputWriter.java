@@ -194,7 +194,7 @@ public class OutputWriter {
 	    	String colName = rsmd.getColumnName(a+1);
 	    	SXSSFCell cell = rowHead.createCell(a);
 	    	cell.setCellValue(colName);
-	    	if(a == 5)
+	    	if(a == 7)
 	    		cell.setCellStyle(yellowHeader);
 	    	else if(a>2 && a<12)
 	    		cell.setCellStyle(greyHeader);
@@ -224,7 +224,7 @@ public class OutputWriter {
 	    	String colName = rsmd.getColumnName(a+1);
 	    	SXSSFCell cell = dummyrow.createCell(a);
 	    	cell.setCellValue(colName);
-	    	if(a == 5)
+	    	if(a == 7)
 	    		cell.setCellStyle(yellowHeader);
 	    	else if(a>1 && a<11)
 	    		cell.setCellStyle(greyHeader);
@@ -297,7 +297,7 @@ public class OutputWriter {
 	    coverPage.getRow(8).getCell(5).setCellValue("Prepared by:");
 	    coverPage.getRow(10).getCell(5).setCellValue("Reviewed by:");
 	    
-	    coverPage.getRow(2).getCell(8).setCellValue(message.getJob().getCustomer());
+	    coverPage.getRow(2).getCell(8).setCellValue(message.getJob().getClient().getClient());
 	    coverPage.getRow(4).getCell(8).setCellValue(StringUtil.convertDateFormat(message.getJob().getPricingDay()));
 	    coverPage.getRow(6).getCell(8).setCellValue(message.getJob().getCurrency());
 	    

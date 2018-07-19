@@ -35,9 +35,22 @@ public class ClientService {
 		Session session = HibernateUtil.getSessionFactory().openSession();	
 		try {		
 			session.beginTransaction();
-			Query query = session.createNativeQuery("SELECT * FROM tbl_client").addEntity(VPClient.class);
+			Query query = session.createNativeQuery("SELECT * FROM tbl_client ORDER BY client").addEntity(VPClient.class);
 			//session.getTransaction().commit();	
 			List<VPClient> res =  query.getResultList();
+			return res;
+		} finally {
+			session.close();
+		}	
+	}
+	
+	public static List<String> getAllCountries(){
+		Session session = HibernateUtil.getSessionFactory().openSession();	
+		try {		
+			session.beginTransaction();
+			Query query = session.createNativeQuery("SELECT English FROM map_CountryISO ORDER BY English");
+			//session.getTransaction().commit();	
+			List<String> res =  query.getResultList();
 			return res;
 		} finally {
 			session.close();
@@ -55,7 +68,7 @@ public class ClientService {
 		}
 	}
 	
-	public static void deleteJob(int id) {
+	public static void deleteClient(int id) {
 		Session session = HibernateUtil.getSessionFactory().openSession();	
 		try {		
 			session.beginTransaction();

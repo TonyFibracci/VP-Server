@@ -4,25 +4,30 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlRootElement;
 
+@XmlRootElement
 @Entity
 @Table(name = "tbl_client")
 public class VPClient {
 	
 	@Id
-	@Column
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name = "id")
 	private int id;
 	
 	@Column
-	private String name;
+	private String client;
 	
 	@Column
 	private String country;
 	
 	@Column
-	private String jobCode;
+	private String engagementCode;
 	
 	@Column
 	private String paceNo;
@@ -49,11 +54,11 @@ public class VPClient {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public String getName() {
-		return name;
+	public String getClient() {
+		return client;
 	}
-	public void setName(String name) {
-		this.name = name;
+	public void setClient(String client) {
+		this.client = client;
 	}
 	public String getCountry() {
 		return country;
@@ -61,11 +66,11 @@ public class VPClient {
 	public void setCountry(String country) {
 		this.country = country;
 	}
-	public String getJobCode() {
-		return jobCode;
+	public String getEngagementCode() {
+		return engagementCode;
 	}
-	public void setJobCode(String jobCode) {
-		this.jobCode = jobCode;
+	public void setEngagementCode(String engagementCode) {
+		this.engagementCode = engagementCode;
 	}
 	public String getPaceNo() {
 		return paceNo;

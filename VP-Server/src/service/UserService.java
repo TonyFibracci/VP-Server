@@ -15,7 +15,7 @@ public class UserService {
 		Session session = HibernateUtil.getSessionFactory().openSession();	
 		try {		
 			session.beginTransaction();
-			Query query = session.createNativeQuery("SELECT * FROM map_User").addEntity(User.class);
+			Query query = session.createNativeQuery("SELECT * FROM map_User ORDER BY Lastname").addEntity(User.class);
 			//session.getTransaction().commit();	
 			List<User> res =  query.getResultList();
 			return res;

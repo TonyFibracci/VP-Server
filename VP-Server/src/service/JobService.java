@@ -39,11 +39,26 @@ public class JobService {
 		}	
 	}
 	
+	public static List<Job> getAllClientJobs(int clientId){
+		Session session = HibernateUtil.getSessionFactory().openSession();	
+		try {		
+			session.beginTransaction();
+			Query query = session.createNativeQuery("SELECT * FROM tbl_Job WHERE client = :user ORDER BY PricingDay").addEntity(Job.class);
+			query.setParameter("user", clientId);
+			List<Job> res =  query.getResultList();
+			return res;
+			
+			
+		} finally {
+			session.close();
+		}	
+	}
+	
 	public static List<User> getAllUsers(){
 		Session session = HibernateUtil.getSessionFactory().openSession();	
 		try {		
 			session.beginTransaction();
-			Query query = session.createNativeQuery("SELECT * FROM map_User").addEntity(User.class);
+			Query query = session.createNativeQuery("SELECT * FROM map_User ORDER BY Lastname").addEntity(User.class);
 			//session.getTransaction().commit();	
 			List<User> res =  query.getResultList();
 			return res;

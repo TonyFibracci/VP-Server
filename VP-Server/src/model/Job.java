@@ -31,8 +31,9 @@ public class Job {
 	@Column(name = "id")
 	private int id;
 	
-	@Column
-	private String customer;
+	@ManyToOne 
+	@JoinColumn(name = "client")
+	private VPClient client;
 	
 	@Column
 	private String portfolio;
@@ -70,7 +71,11 @@ public class Job {
 	private String comment;
 	
 	@Column
-	private float hours;
+	private float hoursPreparer;
+	
+	@Column
+	private float hoursReviewer;
+	
 	
 	public Job() {
 		// TODO Auto-generated constructor stub
@@ -82,7 +87,7 @@ public class Job {
 			this.id = jsonObj.get("id").getAsInt();
 		}
 		if(jsonObj.get("customer") != null) {
-			this.customer = jsonObj.get("customer").getAsString();
+			this.client = gson.fromJson(jsonObj.get("customer"), VPClient.class);
 		}
 		if(jsonObj.get("portfolio") != null) {
 			this.portfolio = jsonObj.get("portfolio").getAsString();
@@ -131,8 +136,11 @@ public class Job {
 		if(jsonObj.get("contacts") != null) {
 			this.contacts = jsonObj.get("contacts").getAsString();
 		}
-		if(jsonObj.get("hours") != null) {
-			this.hours = jsonObj.get("hours").getAsFloat();
+		if(jsonObj.get("hoursPreparer") != null) {
+			this.hoursPreparer = jsonObj.get("hoursPreparer").getAsFloat();
+		}
+		if(jsonObj.get("hoursReviewer") != null) {
+			this.hoursReviewer = jsonObj.get("hoursReviewer").getAsFloat();
 		}
 		
 	}
@@ -145,12 +153,12 @@ public class Job {
 		this.id = id;
 	}
 
-	public String getCustomer() {
-		return customer;
+	public VPClient getClient() {
+		return client;
 	}
 
-	public void setCustomer(String customer) {
-		this.customer = customer;
+	public void setClient(VPClient customer) {
+		this.client = customer;
 	}
 
 	public String getPortfolio() {
@@ -241,17 +249,25 @@ public class Job {
 		this.comment = comment;
 	}
 
-	public float getHours() {
-		return hours;
+	public float getHoursPreparer() {
+		return hoursPreparer;
 	}
 
-	public void setHours(float hours) {
-		this.hours = hours;
+	public void setHoursPreparer(float hours) {
+		this.hoursPreparer = hours;
+	}
+	
+	public float getHoursReviewer() {
+		return hoursReviewer;
+	}
+
+	public void setHoursReviewer(float hours) {
+		this.hoursReviewer = hours;
 	}
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(customer).append("\n");
+		sb.append(client).append("\n");
 		sb.append(type).append("\n");
 		sb.append(pricingDay).append("\n");
 		sb.append(currency).append("\n");
@@ -261,7 +277,7 @@ public class Job {
 		sb.append(status).append("\n");
 		sb.append(engagementCode).append("\n");
 		sb.append(contacts).append("\n");
-		sb.append(hours).append("\n");
+		sb.append(hoursPreparer).append("\n");
 		return sb.toString();
 	}
 	
