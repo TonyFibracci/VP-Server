@@ -70,7 +70,19 @@ public class OutputWriter {
 		myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 	    Statement st = myConn.createStatement();
 	    String sheetName = "EY Valuation Results Preparer";
-	    ResultSet rs = st.executeQuery("Select * from " + outputTable);
+	    ResultSet fieldOrderRs = st.executeQuery("Select * from tbl_FieldSelection Where Preparer_Selection = 1 order by Sort");
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("Select ");
+	    boolean start = true;
+	    while(fieldOrderRs.next()) {
+	    	if(!start)
+	    		sb.append(",");
+	    	String fieldName = fieldOrderRs.getString(1);
+	    	sb.append("[").append(fieldName).append("]");
+	    	start = false;
+	    }
+	    sb.append(" from " + outputTable);
+	    ResultSet rs = st.executeQuery(sb.toString());
 	    populateSheetContent(sheetName, rs);
 	}
 	

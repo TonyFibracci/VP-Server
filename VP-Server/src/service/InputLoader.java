@@ -163,7 +163,7 @@ public class InputLoader {
 	}
 	
 	public static String getActiveInput(String userName) {
-		String queryString = "SELECT b.client FROM (tbl_UserActiveJob u INNER JOIN tbl_job j ON u.jobId = j.id) a INNER JOIN tbl_client b ON a.client = b.id WHERE u.username = '" + userName + "'" ;
+		String queryString = "SELECT b.client FROM tbl_UserActiveJob u INNER JOIN tbl_job j ON u.jobId = j.id INNER JOIN tbl_client b ON j.client = b.id WHERE u.username = '" + userName + "'" ;
 		Session session = HibernateUtil.getSessionFactory().openSession();	
 		try {		
 			session.beginTransaction();
