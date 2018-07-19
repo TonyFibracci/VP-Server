@@ -29,10 +29,8 @@ import model.GlobalConstants;
 
 public class JDBCUtil {
 	
-	static String jdbcUrl = "jdbc:sqlserver://DE2236240W1\\SQLEXPRESS2014:44340;databaseName=MarketDB;integratedSecurity=true";
-//	 String jdbcUrl = "jdbc:sqlserver://10.101.152.189\\SQLEXPRESS2014;databaseName=MarketDB;integratedSecurity=true";
-	String userName;
-	static String serverURL = "DE2236240W1\\SQLEXPRESS2014,44340";
+
+	private String userName;
 	
 	public JDBCUtil(String userName) {
 		this.userName = userName;
@@ -42,7 +40,7 @@ public class JDBCUtil {
 		Connection myConn = null;
 		String tableName = userName + GlobalConstants.IMPORT_SUFFIX;
 		try {
-			myConn = DriverManager.getConnection(jdbcUrl);
+			myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 			SQLServerDataTable tvp = new SQLServerDataTable();
 			tvp.addColumnMetadata("field_name", Types.NVARCHAR);
 			for(String field : fields) {
@@ -75,7 +73,7 @@ public class JDBCUtil {
 		Connection myConn = null;
 		String tableName = userName + GlobalConstants.IMPORT_SUFFIX;
 		try {
-			myConn = DriverManager.getConnection(jdbcUrl);
+			myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 			SQLServerDataTable tvp = new SQLServerDataTable();
 			tvp.addColumnMetadata("field_name", Types.NVARCHAR);
 			for(String field : fields) {
@@ -107,7 +105,7 @@ public class JDBCUtil {
 	public void createTestTable(List<String> fields) throws Exception {
 		Connection myConn = null;
 		try {
-			myConn = DriverManager.getConnection(jdbcUrl);
+			myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 			SQLServerDataTable tvp = new SQLServerDataTable();
 			tvp.addColumnMetadata("field_name", Types.NVARCHAR);
 			for(String field : fields) {
@@ -137,7 +135,7 @@ public class JDBCUtil {
 		String errorMessage = null;
 		String tableName = userName + GlobalConstants.IMPORT_SUFFIX;
 		try {
-			myConn = DriverManager.getConnection(jdbcUrl);
+			myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 			SQLServerDataTable tvp = new SQLServerDataTable();
 			tvp.addColumnMetadata("field_name", Types.NVARCHAR);
 			for(String field : fields) {
@@ -178,7 +176,7 @@ public class JDBCUtil {
 		Connection myConn = null;
 		String tableName = userName + GlobalConstants.IMPORT_SUFFIX;
 		try {
-			myConn = DriverManager.getConnection(jdbcUrl);
+			myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 			SQLServerDataTable tvp = new SQLServerDataTable();
 			tvp.addColumnMetadata("field_name", Types.NVARCHAR);
 			for(String field : fields) {
@@ -212,7 +210,7 @@ public class JDBCUtil {
 		Connection myConn = null;
 		String tableName = userName + GlobalConstants.IMPORT_SUFFIX;
 		try {
-			myConn = DriverManager.getConnection(jdbcUrl);
+			myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 			SQLServerDataTable tvp = new SQLServerDataTable();
 			tvp.addColumnMetadata("field_name", Types.NVARCHAR);
 			for(String field : fields) {
@@ -246,7 +244,7 @@ public class JDBCUtil {
 		Connection myConn = null;
 		String tableName = userName + GlobalConstants.IMPORT_SUFFIX;
 		try {
-			myConn = DriverManager.getConnection(jdbcUrl);
+			myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 			SQLServerDataTable tvpWithDate = new SQLServerDataTable();
 			tvpWithDate.addColumnMetadata("field_name", Types.NVARCHAR);
 			for(String field : fieldNamesWithDate) {
@@ -294,7 +292,7 @@ public class JDBCUtil {
 					+ tableName
 					+ " in \""
 					+ path
-					+ "\" -S\"" + serverURL 
+					+ "\" -S\"" + GlobalConstants.SERVER 
 					+ "\" -T -t ; -r \\n -c -F 2");
 			System.out.println("wait import");
 			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -320,7 +318,7 @@ public class JDBCUtil {
 		String sourceTable = userName + GlobalConstants.IMPORT_SUFFIX;
 		String errorMessage = "";
 		try {
-			myConn = DriverManager.getConnection(jdbcUrl);
+			myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 			String execStoredProcedure = "EXEC spImportBVALTable2 ?, ?, ?";
 			SQLServerPreparedStatement pst = (SQLServerPreparedStatement) myConn.prepareStatement(execStoredProcedure);
 			pst.setString(1, pricingDay);
@@ -354,7 +352,7 @@ public class JDBCUtil {
 		String sourceTable = userName + GlobalConstants.IMPORT_SUFFIX;
 		String errorMessage = "";
 		try {
-			myConn = DriverManager.getConnection(jdbcUrl);
+			myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 			String execStoredProcedure = "EXEC spImportHistoricalTable ?, ?";
 			SQLServerPreparedStatement pst = (SQLServerPreparedStatement) myConn.prepareStatement(execStoredProcedure);
 			pst.setString(1, targetTable);
@@ -387,7 +385,7 @@ public class JDBCUtil {
 		String sourceTable = userName + GlobalConstants.IMPORT_SUFFIX;
 		String errorMessage = "";
 		try {
-			myConn = DriverManager.getConnection(jdbcUrl);
+			myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 			String execStoredProcedure = "EXEC spImportDLMasterTable2 ?, ?";
 			SQLServerPreparedStatement pst = (SQLServerPreparedStatement) myConn.prepareStatement(execStoredProcedure);
 			pst.setString(1, targetTable);
@@ -420,7 +418,7 @@ public class JDBCUtil {
 		String sourceTable = userName + GlobalConstants.IMPORT_SUFFIX;
 		String errorMessage = "";
 		try {
-			myConn = DriverManager.getConnection(jdbcUrl);
+			myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 			String execStoredProcedure = 
 					"UPDATE map "
 					+ "SET map.CUSIP = source.ID_CUSIP, map.SEDOL = source.ID_SEDOL1, map.WKN = source.ID_WERTPAPIER "
@@ -456,7 +454,7 @@ public class JDBCUtil {
 		Connection myConn = null;
 		String sourceTable = userName + GlobalConstants.IMPORT_SUFFIX;
 		try {
-			myConn = DriverManager.getConnection(jdbcUrl);
+			myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 			
 			SQLServerDataTable tvpWithoutDate = new SQLServerDataTable();
 			tvpWithoutDate.addColumnMetadata("field_name", Types.NVARCHAR);
@@ -554,10 +552,10 @@ public class JDBCUtil {
 //		stringList.add("BVAL_YLD_AAA_BENCHMARK");
 //		passTVP(stringList);
 		
-//		String jdbcUrl = "jdbc_sqlserver_//DE2236240W1\\SQLEXPRESS2014;databaseName=MarketDB;integratedSecurity=true";
+//		String GlobalConstants.JDBC_URL = "jdbc_sqlserver_//DE2236240W1\\SQLEXPRESS2014;databaseName=MarketDB;integratedSecurity=true";
 	
 		try {
-			Connection myConn = DriverManager.getConnection(jdbcUrl);
+			Connection myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 			String query = "CREATE TABLE KOOL (nr int)";
 			myConn.createStatement().executeUpdate(query);
 //			PreparedStatement ps = myConn.prepareStatement(
