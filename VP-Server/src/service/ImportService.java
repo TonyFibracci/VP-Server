@@ -222,7 +222,7 @@ public class ImportService {
 	    
 	    String headers = content.split("\n")[0];
 	    String[] headersSplitted = headers.split(",");
-	    for(int i = 3; i < headersSplitted.length; i++) {
+	    for(int i = 0; i < headersSplitted.length; i++) {
 	    	fields.add(headersSplitted[i]);
 	    }
 	    

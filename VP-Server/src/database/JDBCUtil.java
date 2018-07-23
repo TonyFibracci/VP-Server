@@ -83,11 +83,12 @@ public class JDBCUtil {
 			SQLServerPreparedStatement pst = (SQLServerPreparedStatement) myConn.prepareStatement(execDropIfExist);
 			pst.setString(1, tableName);
 			pst.execute();
-			String execStoredProcedure = "EXEC spCreateMarkitTable2 ?, ?";
+			String execStoredProcedure = "EXEC spCreateMarkitTable ?, ?";
 			pst = (SQLServerPreparedStatement) myConn.prepareStatement(execStoredProcedure);
 			pst.setStructured(1, "dbo.FieldTableType", tvp);
 			pst.setString(2, tableName);
 			pst.execute();
+			Thread.sleep(1000);
 		}
 		catch(Exception e) {
 			throw e;
