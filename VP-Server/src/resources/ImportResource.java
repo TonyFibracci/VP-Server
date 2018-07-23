@@ -91,6 +91,23 @@ public class ImportResource {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	@POST
+	@Path("/bval")
+	public Response postBVAL(
+			@FormDataParam("user") String userName,
+			@FormDataParam("file") InputStream fileInputStream){	
+		
+		try {
+			ImportService.importBVAL(fileInputStream, userName);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return Response.status(Status.OK).build();	
+	}
+	
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	@POST
 	@Path("/dl_pricing")
 	public Response postDLPricing(
 			@FormDataParam("user") String userName,

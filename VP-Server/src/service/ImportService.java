@@ -234,4 +234,34 @@ public class ImportService {
 		
 	}
 
+	public static void importBVAL(InputStream fileInputStream, String userName) throws Exception {
+	    File targetFile = new File("targetFile_" + userName + ".csv");
+	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
+	    		  .lines().collect(Collectors.joining("\n")); 
+	    String content = createSqlServerCompatibleFile(result);
+	    Files.write(targetFile.toPath(), content.getBytes());
+	    
+	    List<String> fields = new ArrayList<String>();
+	    String pricingDay = "";
+	    
+	    String headers = content.split("\n")[0];
+	    String[] headersSplitted = headers.split(";");
+	    for(int i = 3; i < headersSplitted.length; i++) {
+	    	String[] subSplitted = headersSplitted[i].split(":");
+	    	fields.add(subSplitted[0]);
+	    	if(subSplitted.length > 1) {
+	    		if(subSplitted[1].length() == 8) {
+	    			pricingDay = subSplitted[1].substring(0, 4) + "-" + subSplitted[1].substring(4, 6) + "-" + subSplitted[1].substring(6);
+	    		}
+	    	}
+	    }
+	    
+	    
+	    JDBCUtil dbUtil = new JDBCUtil(userName);
+	    dbUtil.createDLMasterTable(fields);
+	    dbUtil.importCsvBcp(targetFile.getAbsolutePath());
+	    dbUtil.importBVALTable(pricingDay, GlobalConstants.BLOOMBERG_MASTER_TABLE);	
+		
+	}
+
 }
