@@ -380,6 +380,39 @@ public class JDBCUtil {
 		}
 	}
 	
+	public  void importMarkitTable(String targetTable) throws Exception {
+		Connection myConn = null;
+		String sourceTable = userName + GlobalConstants.IMPORT_SUFFIX;
+		String errorMessage = "";
+		try {
+			myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
+			String execStoredProcedure = "EXEC spImportMarkitTable ?, ?";
+			SQLServerPreparedStatement pst = (SQLServerPreparedStatement) myConn.prepareStatement(execStoredProcedure);
+			pst.setString(1, targetTable);
+			pst.setString(2, sourceTable);
+			pst.execute();
+			ResultSet rs = pst.getResultSet();
+			if(rs != null) {
+		        rs.next(); 
+	            errorMessage = rs.getString("ErrorMessage");            
+			}
+		}
+		catch(Exception e) {
+			if (!errorMessage.equalsIgnoreCase(""))
+				throw new Exception(errorMessage);
+			else
+				throw e;
+		}
+		finally {
+			try {
+				myConn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	public  void importDLMasterTable(String targetTable) throws Exception {
 		Connection myConn = null;
 		String sourceTable = userName + GlobalConstants.IMPORT_SUFFIX;

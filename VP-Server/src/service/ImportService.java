@@ -171,4 +171,67 @@ public class ImportService {
 		
 	}
 
+	public static void importDLMaster(InputStream fileInputStream, String userName) throws Exception {
+	    File targetFile = new File("targetFile_" + userName + ".csv");
+	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
+	    		  .lines().collect(Collectors.joining("\n")); 
+	    String content = createSqlServerCompatibleFile(result);
+	    Files.write(targetFile.toPath(), content.getBytes());
+	    
+	    List<String> fields = new ArrayList<String>();
+	    
+	    String headers = content.split("\n")[0];
+	    String[] headersSplitted = headers.split(";");
+	    for(int i = 3; i < headersSplitted.length; i++) {
+	    	fields.add(headersSplitted[i]);
+	    }
+	    
+	    
+	    JDBCUtil dbUtil = new JDBCUtil(userName);
+	    dbUtil.createDLMasterTable(fields);
+	    dbUtil.importCsvBcp(targetFile.getAbsolutePath());
+	    dbUtil.importDLPricingTable(GlobalConstants.BLOOMBERG_MASTER_TABLE, fields);	
+	}
+
+	public static void importIDX(InputStream fileInputStream, String userName) throws Exception {
+	    File targetFile = new File("targetFile_" + userName + ".csv");
+	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
+	    		  .lines().collect(Collectors.joining("\n")); 
+	    String content = createSqlServerCompatibleFile(result);
+	    Files.write(targetFile.toPath(), content.getBytes());
+	    
+	    List<String> fields = new ArrayList<String>();
+	    fields.add("IDX_RATIO");
+
+	    
+	    JDBCUtil dbUtil = new JDBCUtil(userName);
+	    dbUtil.createHistoricalTable(fields);
+	    dbUtil.importCsvBcp(targetFile.getAbsolutePath());
+	    dbUtil.importHistoricalTable(GlobalConstants.BLOOMBERG_PRICING_TABLE); 
+		
+	}
+
+	public static void importMarkit(InputStream fileInputStream, String userName) throws Exception{
+	    File targetFile = new File("targetFile_" + userName + ".csv");
+	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
+	    		  .lines().collect(Collectors.joining("\n")); 
+	    String content = createSqlServerCompatibleFile(result);
+	    Files.write(targetFile.toPath(), content.getBytes());
+	    
+	    List<String> fields = new ArrayList<String>();
+	    
+	    String headers = content.split("\n")[0];
+	    String[] headersSplitted = headers.split(",");
+	    for(int i = 3; i < headersSplitted.length; i++) {
+	    	fields.add(headersSplitted[i]);
+	    }
+	    
+	    
+	    JDBCUtil dbUtil = new JDBCUtil(userName);
+	    dbUtil.createMarkitTable(fields);
+	    dbUtil.importCsvBcp(targetFile.getAbsolutePath());
+	    dbUtil.importMarkitTable(GlobalConstants.MARKIT_TABLE);	
+		
+	}
+
 }
