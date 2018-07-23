@@ -53,6 +53,23 @@ public class ImportResource {
 		return Response.status(Status.OK).build();	
 	}
 	
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	@POST
+	@Path("/dl_pricing")
+	public Response postDLPricing(
+			@FormDataParam("user") String userName,
+			@FormDataParam("file") InputStream fileInputStream){	
+		
+		try {
+			ImportService.importDLPricing(fileInputStream, userName);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return Response.status(Status.OK).build();	
+	}
+	
 	
 
 }

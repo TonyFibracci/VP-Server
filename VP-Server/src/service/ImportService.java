@@ -142,4 +142,33 @@ public class ImportService {
 		return content;
 	}
 
+	public static void importDLPricing(InputStream fileInputStream, String userName) throws Exception{
+	    File targetFile = new File("targetFile_" + userName + ".csv");
+	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
+	    		  .lines().collect(Collectors.joining("\n")); 
+	    String content = createSqlServerCompatibleFile(result);
+	    Files.write(targetFile.toPath(), content.getBytes());
+	    
+	    List<String> fields = new ArrayList<String>();
+	    List<String> fieldsAndDates = new ArrayList<String>();
+	    
+	    String headers = content.split("\n")[0];
+	    String[] headersSplitted = headers.split(";");
+	    for(int i = 3; i < headersSplitted.length; i++) {
+	    	String[] subSplits = headersSplitted[i].split(":");
+	    	fields.add(subSplits[0]);
+	    	if(subSplits.length > 1)
+	    		fieldsAndDates.add(subSplits[0]+subSplits[1]);
+	    	else
+	    		fieldsAndDates.add(subSplits[0]);
+	    }
+	    
+	    
+	    JDBCUtil dbUtil = new JDBCUtil(userName);
+	    dbUtil.createDLPricingTable(fieldsAndDates, fields);
+	    dbUtil.importCsvBcp(targetFile.getAbsolutePath());
+	    dbUtil.importDLPricingTable(GlobalConstants.BLOOMBERG_PRICING_TABLE, fields);
+		
+	}
+
 }
