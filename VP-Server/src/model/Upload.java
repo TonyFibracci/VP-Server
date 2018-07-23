@@ -255,7 +255,6 @@ public abstract class Upload {
 		return stringBuilder.toString();		
 	}
 	
-	public abstract void importMarketDataReply() throws Exception;
 
 
 }

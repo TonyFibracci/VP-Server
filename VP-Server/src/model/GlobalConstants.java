@@ -9,7 +9,7 @@ public class GlobalConstants {
 	public static final String IMPORT_PREFIX = "IMPORT_";
 	public static final String BLOOMBERG_MASTER_TABLE = "masterTable";
 	public static final String BLOOMBERG_PRICING_TABLE = "pricingTable";
-	public static final String BLOOMBERG_MARKIT_TABLE = "pricingTable";
+	public static final String MARKIT_TABLE = "pricingTable";
 	public static final String ISP_PRICING_TABLE = "tbl_NISPPricingData";
 	
 }
