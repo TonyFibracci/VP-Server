@@ -10,7 +10,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import model.Upload;
+import model.UploadJsonObject;
 import service.UploadService;
 
 
@@ -20,12 +20,12 @@ import service.UploadService;
 public class UploadResource {
 	
 	@GET
-	public List<Upload> getUploads(@PathParam("jobId") int jobId){
+	public List<UploadJsonObject> getUploads(@PathParam("jobId") int jobId){
 		return UploadService.getUploadsByJobId(jobId);
 	}
 
 	@POST
-	public void addUpload(Upload upload) {
+	public void addUpload(UploadJsonObject upload) {
 		UploadService.addUpload(upload);
 	}
 }

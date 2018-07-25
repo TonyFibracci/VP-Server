@@ -23,61 +23,65 @@ public class InputLoader {
 	private InputMessage inputMessage;
 	private String tableName;
 	
-	public InputLoader(InputMessage message, InputStream inputStream) throws IOException {
-		this.inputMessage = message;
-		tableName = OutputWriter.INPUT_PREFIX + inputMessage.getUserName();
-		createTable();
-		XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
-		XSSFSheet sheet = workbook.getSheetAt(0);
-		int numberOfRows = sheet.getPhysicalNumberOfRows();
-//		List<String> sheetNames = new ArrayList<String>();
-		Session session = HibernateUtil.getSessionFactory().openSession();	
-		Transaction tx = session.beginTransaction();
-		System.out.println("total: " + numberOfRows);
-		for (int i = 1; i < numberOfRows; i++) {
-			System.out.println("Line " + i);
-			XSSFRow row = sheet.getRow(i);
-			//skip empty rows
-			if(row.getCell(0) == null)
-				continue;
-			int eyNr = (int) row.getCell(0).getNumericCellValue();
-			String isin = row.getCell(1).getStringCellValue();
-			String description = ""; 
-			if(row.getCell(2) != null) {
-				description = row.getCell(2).getStringCellValue();
-				description = description.replace("'", "");
+	public InputLoader(InputMessage message, InputStream inputStream) throws Exception {
+		try {
+			this.inputMessage = message;
+			tableName = OutputWriter.INPUT_PREFIX + inputMessage.getUserName();
+			createTable();
+			XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+			XSSFSheet sheet = workbook.getSheetAt(0);
+			int numberOfRows = sheet.getPhysicalNumberOfRows();
+	//		List<String> sheetNames = new ArrayList<String>();
+			Session session = HibernateUtil.getSessionFactory().openSession();	
+			Transaction tx = session.beginTransaction();
+			System.out.println("total: " + numberOfRows);
+			for (int i = 1; i < numberOfRows; i++) {
+				System.out.println("Line " + i);
+				XSSFRow row = sheet.getRow(i);
+				//skip empty rows
+				if(row.getCell(0) == null)
+					continue;
+				int eyNr = (int) row.getCell(0).getNumericCellValue();
+				String isin = row.getCell(1).getStringCellValue();
+				String description = ""; 
+				if(row.getCell(2) != null) {
+					description = row.getCell(2).getStringCellValue();
+					description = description.replace("'", "");
+				}
+				String toP = row.getCell(4).getStringCellValue();
+				double valuatioQuote = row.getCell(5).getNumericCellValue();
+				double nominal = row.getCell(6).getNumericCellValue();
+				String shortLong = row.getCell(7).getStringCellValue();
+				String eyComment = "";
+				if(row.getCell(10) != null)
+					eyComment = row.getCell(10).getStringCellValue();
+				String queryString = "INSERT INTO " +
+						tableName + 
+						" (EY_No, SecID, ISIN, [Client Security Description], [Valuation quote], Nominal, [Type of Price], ShortLongFlag, [EY_Comment]) VALUES (" +
+						eyNr + ",NULL,'" + 
+						isin + "','" +
+						description + "'," +
+						valuatioQuote + "," +
+						nominal + ",'" + 
+						toP + "','" + 
+						shortLong + "','" +
+						eyComment + "')";
+				
+				Query query = session.createNativeQuery(queryString);
+				query.executeUpdate();
+				session.flush();
+				session.clear();
+				
 			}
-			String toP = row.getCell(4).getStringCellValue();
-			double valuatioQuote = row.getCell(5).getNumericCellValue();
-			double nominal = row.getCell(6).getNumericCellValue();
-			String shortLong = row.getCell(7).getStringCellValue();
-			String eyComment = "";
-			if(row.getCell(10) != null)
-				eyComment = row.getCell(10).getStringCellValue();
-			String queryString = "INSERT INTO " +
-					tableName + 
-					" (EY_No, SecID, ISIN, [Client Security Description], [Valuation quote], Nominal, [Type of Price], ShortLongFlag, [EY_Comment]) VALUES (" +
-					eyNr + ",NULL,'" + 
-					isin + "','" +
-					description + "'," +
-					valuatioQuote + "," +
-					nominal + ",'" + 
-					toP + "','" + 
-					shortLong + "','" +
-					eyComment + "')";
-			
-			Query query = session.createNativeQuery(queryString);
-			query.executeUpdate();
-			session.flush();
-			session.clear();
-			
+			tx.commit();
+			session.close();
+			mapSecId();
+			defineNewSecID();
+			mapSecId();
+			updateActiveJob();
+		} catch (Exception e) {
+			throw e;
 		}
-		tx.commit();
-		session.close();
-		mapSecId();
-		defineNewSecID();
-		mapSecId();
-		updateActiveJob();
 	}
 	
 	private void createTable() {

@@ -25,10 +25,7 @@
 		
 		<property name="hbm2ddl.auto">update</property>
 		
-		<mapping class="model.Upload"/>
- 		<mapping class="model.BloombergUpload"/>
- 		<mapping class="model.MarkitUpload"/>
- 		<mapping class="model.ICEUpload"/>
+		<mapping class="model.UploadJsonObject"/>
  		<mapping class="model.Job"/>
  		<mapping class="model.User"/>
  		<mapping class="model.VPClient"/>

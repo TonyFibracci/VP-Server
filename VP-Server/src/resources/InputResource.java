@@ -34,9 +34,10 @@ public class InputResource {
 			@FormDataParam("file") InputStream fileInputStream){
 		try {
 			new InputLoader(message, fileInputStream);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return Response.status(Status.NOT_ACCEPTABLE.getStatusCode(), e.getMessage()).build();
 		}
 		return Response.status(Status.OK).build();	
 	}

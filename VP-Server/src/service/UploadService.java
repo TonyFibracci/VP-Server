@@ -7,13 +7,13 @@ import javax.persistence.Query;
 import org.hibernate.Session;
 
 import database.HibernateUtil;
-import model.Upload;
+import model.UploadJsonObject;
 
 
 
 public class UploadService {
 
-	public static void addUpload(Upload upload) {
+	public static void addUpload(UploadJsonObject upload) {
 		Session session = HibernateUtil.getSessionFactory().openSession();	
 		try {		
 			session.beginTransaction();
@@ -24,13 +24,14 @@ public class UploadService {
 		}
 	}
 	
-	public static List<Upload> getUploadsByJobId(int jobId){
+	public static List<UploadJsonObject> getUploadsByJobId(int jobId){
 		Session session = HibernateUtil.getSessionFactory().openSession();	
 		try {		
 			session.beginTransaction();
-			Query query = session.createNativeQuery("SELECT * FROM tbl_upload WHERE jobId = :jobId").addEntity(Upload.class);
+			Query query = session.createNativeQuery("SELECT * FROM tbl_upload WHERE jobId = :jobId").addEntity(UploadJsonObject.class);
 			query.setParameter("jobId", jobId);
-			List<Upload> res =  query.getResultList();
+			@SuppressWarnings("unchecked")
+			List<UploadJsonObject> res =  query.getResultList();
 			return res;
 		} finally {
 			session.close();
