@@ -52,6 +52,7 @@ public class OutputWriter {
 	private static final String SCRIPT_PATH = "C:\\Users\\deslu001\\Documents\\SQL Server Management Studio\\outputScript3.sql";
 	public static final String OUTPUT_PREFIX = "OUTPUT_";
 	public static final String INPUT_PREFIX = "DTP_";
+	public static final String INPUT_CL_PREFIX = "DTP_CL_";
 	
 	private OutputMessage message;
 	private SXSSFWorkbook workbook;
@@ -88,11 +89,12 @@ public class OutputWriter {
 	
 	private void writeValuationResultsClient() throws SQLException {
 		String outputTable = OUTPUT_PREFIX + message.getJob().getPreparer().getId();
+		String input_cl_table = INPUT_CL_PREFIX + message.getJob().getPreparer().getId();
 		Connection myConn = null;
 		myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 	    Statement st = myConn.createStatement();
 	    String sheetName = "EY Valuation Results Client";
-	    ResultSet fieldOrderRs = st.executeQuery("Select * from tbl_FieldSelection Where Client_Selection = 1 order by Sort");
+	    ResultSet fieldOrderRs = st.executeQuery("Select FieldName from tbl_FieldSelection Where Client_Selection = 1 order by Sort");
 	    StringBuilder sb = new StringBuilder();
 	    sb.append("Select ");
 	    boolean start = true;
@@ -100,10 +102,11 @@ public class OutputWriter {
 	    	if(!start)
 	    		sb.append(",");
 	    	String fieldName = fieldOrderRs.getString(1);
-	    	sb.append("[").append(fieldName).append("]");
+	    	sb.append("ot.[").append(fieldName).append("]");
 	    	start = false;
 	    }
-	    sb.append(" from " + outputTable);
+	    //append additional client columns by join
+	    sb.append(", it.* from " + outputTable).append(" ot INNER JOIN ").append(input_cl_table).append(" it ON ot.EY_No = it.[CL EY_No]");
 	    ResultSet rs = st.executeQuery(sb.toString());
 	    
 	    populateSheetContent(sheetName, rs);
@@ -206,7 +209,7 @@ public class OutputWriter {
 	    	String colName = rsmd.getColumnName(a+1);
 	    	SXSSFCell cell = rowHead.createCell(a);
 	    	cell.setCellValue(colName);
-	    	if(a == 7)
+	    	if(a == 5)
 	    		cell.setCellStyle(yellowHeader);
 	    	else if(a>2 && a<12)
 	    		cell.setCellStyle(greyHeader);
@@ -236,7 +239,7 @@ public class OutputWriter {
 	    	String colName = rsmd.getColumnName(a+1);
 	    	SXSSFCell cell = dummyrow.createCell(a);
 	    	cell.setCellValue(colName);
-	    	if(a == 7)
+	    	if(a == 5)
 	    		cell.setCellStyle(yellowHeader);
 	    	else if(a>1 && a<11)
 	    		cell.setCellStyle(greyHeader);
@@ -458,17 +461,14 @@ public class OutputWriter {
 			System.out.println("largest price devs done");
 			writeLargestMarketValueDeviations();
 			System.out.println("largest market devs done");
-		    //SXSSFSheet largestPriceDeviations = workbook.createSheet("Largest Price Deviations");
-		    //SXSSFSheet largestMarketValueDeviations = workbook.createSheet("Largest Market Value Deviations");
+
 		    writeNotCoveredPositions();
 		    System.out.println("not covered done");
-		    //SXSSFSheet notCoveredPositions = workbook.createSheet("Not Covered Positions");
+
 		    SXSSFSheet dataPreparation = workbook.createSheet("Data Preparation");
 		    SXSSFSheet excludedPositions = workbook.createSheet("Excluded Positions");
 		    SXSSFSheet clientDelivery = workbook.createSheet("Client Delivery");
-		    //largestPriceDeviations.setTabColor(IndexedColors.LIGHT_GREEN.getIndex());
-		    //largestMarketValueDeviations.setTabColor(IndexedColors.LIGHT_GREEN.getIndex());
-		    //notCoveredPositions.setTabColor(IndexedColors.LIGHT_GREEN.getIndex());
+
 		    dataPreparation.setTabColor(IndexedColors.AQUA.getIndex());
 		    excludedPositions.setTabColor(IndexedColors.AQUA.getIndex());
 		    clientDelivery.setTabColor(IndexedColors.GREY_50_PERCENT.getIndex());
@@ -477,13 +477,7 @@ public class OutputWriter {
 		    workbook.write(out);
 		    out.close();
 		    workbook.close();
-//		    XSSFWorkbook wb = new XSSFWorkbook(new FileInputStream(message.getOutputPath()));
-//		    XSSFSheet sheet = wb.getSheet("");
-//		    CellStyle redCellStyle = workbook.createCellStyle();
-//		    redCellStyle.setAlignment(HorizontalAlignment.CENTER);
-//		    redCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-//		    redCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
-//		    redCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -509,6 +503,7 @@ public class OutputWriter {
 						"-v",
 						"pricingDay=" + StringUtil.convertDateFormat(message.getJob().getPricingDay()),
 						"inputTable=" + INPUT_PREFIX + message.getJob().getPreparer().getId(),
+						"inputTableCL=" + INPUT_PREFIX + "CL_" + message.getJob().getPreparer().getId(),
 						"outputTable=" + OUTPUT_PREFIX + message.getJob().getPreparer().getId(),
 						"currency=" + message.getJob().getCurrency(),
 						"priceCategory=" + message.getPriceCategory(),

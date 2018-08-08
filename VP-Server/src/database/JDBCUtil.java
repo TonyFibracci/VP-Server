@@ -414,7 +414,8 @@ public class JDBCUtil {
 		}
 	}
 	
-	public  void importDLMasterTable(String targetTable) throws Exception {
+	
+	public void importDLMasterTable(String targetTable) throws Exception {
 		Connection myConn = null;
 		String sourceTable = userName + GlobalConstants.IMPORT_SUFFIX;
 		String errorMessage = "";
@@ -447,7 +448,7 @@ public class JDBCUtil {
 		}
 	}
 	
-	public  void updateMapSecID() throws Exception {
+	public void updateMapSecID() throws Exception {
 		Connection myConn = null;
 		String sourceTable = userName + GlobalConstants.IMPORT_SUFFIX;
 		String errorMessage = "";

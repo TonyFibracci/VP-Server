@@ -190,7 +190,8 @@ public class ImportService {
 	    JDBCUtil dbUtil = new JDBCUtil(userName);
 	    dbUtil.createDLMasterTable(fields);
 	    dbUtil.importCsvBcp(targetFile.getAbsolutePath());
-	    dbUtil.importDLPricingTable(GlobalConstants.BLOOMBERG_MASTER_TABLE, fields);	
+	    dbUtil.importDLMasterTable(GlobalConstants.BLOOMBERG_MASTER_TABLE);	
+	    dbUtil.updateMapSecID();
 	}
 
 	public static void importIDX(InputStream fileInputStream, String userName) throws Exception {
