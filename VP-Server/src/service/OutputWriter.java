@@ -84,7 +84,7 @@ public class OutputWriter {
 	    }
 	    sb.append(" from " + outputTable);
 	    ResultSet rs = st.executeQuery(sb.toString());
-	    populateSheetContent(sheetName, rs);
+	    populateSheetContent(sheetName, rs, -1);
 	}
 	
 	private void writeValuationResultsClient() throws SQLException {
@@ -107,19 +107,32 @@ public class OutputWriter {
 	    }
 	    //append additional client columns by join
 	    sb.append(", it.* from " + outputTable).append(" ot INNER JOIN ").append(input_cl_table).append(" it ON ot.EY_No = it.[CL EY_No]");
+	    System.out.println(sb.toString());
 	    ResultSet rs = st.executeQuery(sb.toString());
 	    
-	    populateSheetContent(sheetName, rs);
+	    populateSheetContent(sheetName, rs, -1);
 	}
 	
-	private void writeNotCoveredPositions() throws SQLException {
+	private void writeNotCoveredPositions() throws SQLException {	    
 		String outputTable = OUTPUT_PREFIX + message.getJob().getPreparer().getId();
 		Connection myConn = null;
 		myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 	    Statement st = myConn.createStatement();
 	    String sheetName = "Not Covered Positions";
-	    ResultSet rs = st.executeQuery("Select * from " + outputTable + " WHERE [Fair Price EY] is null");
-	    populateSheetContent(sheetName, rs);
+	    ResultSet fieldOrderRs = st.executeQuery("Select * from tbl_FieldSelection Where Preparer_Selection = 1 order by Sort");
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("Select ");
+	    boolean start = true;
+	    while(fieldOrderRs.next()) {
+	    	if(!start)
+	    		sb.append(",");
+	    	String fieldName = fieldOrderRs.getString(1);
+	    	sb.append("[").append(fieldName).append("]");
+	    	start = false;
+	    }
+	    sb.append(" from " + outputTable + " WHERE [Fair Price EY] is null");
+	    ResultSet rs = st.executeQuery(sb.toString());
+	    populateSheetContent(sheetName, rs, -1);
 	}
 	
 	private void writeLargestPriceDeviations() throws SQLException {
@@ -133,19 +146,21 @@ public class OutputWriter {
 	    int numberPositions = rs.getInt(1);
 	    int numberTopPercent = (int) (numberPositions * 0.05);
 	    int numberToBeDisplayed = (numberTopPercent > 10) ? numberTopPercent : 10;
-	    rs = st.executeQuery("Select TOP (" + numberToBeDisplayed +") * from " + outputTable + " Order by [Price Deviation Percent] desc");
-	    populateSheetContent(sheetName, rs);
-	    SXSSFSheet sheet = workbook.getSheet(sheetName);
-	    CellStyle redCellStyle = workbook.createCellStyle();
-	    redCellStyle.setAlignment(HorizontalAlignment.CENTER);
-	    redCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-	    redCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
-	    redCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-	    for(int i = 0; i < numberToBeDisplayed + 1; i++) {
-	    	if(sheet.getRow(i) == null)
-	    		continue;
-	    	sheet.getRow(i).getCell(7).setCellStyle(redCellStyle);
+	    
+	    ResultSet fieldOrderRs = st.executeQuery("Select * from tbl_FieldSelection Where Preparer_Selection = 1 order by Sort");
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("Select TOP (" + numberToBeDisplayed + ") ");
+	    boolean start = true;
+	    while(fieldOrderRs.next()) {
+	    	if(!start)
+	    		sb.append(",");
+	    	String fieldName = fieldOrderRs.getString(1);
+	    	sb.append("[").append(fieldName).append("]");
+	    	start = false;
 	    }
+	    sb.append(" from " + outputTable + " Order by [Price Deviation Percent] desc");
+	    rs = st.executeQuery(sb.toString());
+	    populateSheetContent(sheetName, rs, 7);
 	}
 	
 	private void writeLargestMarketValueDeviations() throws SQLException {
@@ -159,22 +174,24 @@ public class OutputWriter {
 	    int numberPositions = rs.getInt(1);
 	    int numberTopPercent = (int) (numberPositions * 0.05);
 	    int numberToBeDisplayed = (numberTopPercent > 10) ? numberTopPercent : 10;
-	    rs = st.executeQuery("Select TOP (" + numberToBeDisplayed +") * from " + outputTable + " Order by [Value Deviation EY] desc");
-	    populateSheetContent(sheetName, rs);
-	    SXSSFSheet sheet = workbook.getSheet(sheetName);
-	    CellStyle redCellStyle = workbook.createCellStyle();
-	    redCellStyle.setAlignment(HorizontalAlignment.CENTER);
-	    redCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-	    redCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
-	    redCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-	    for(int i = 0; i < numberToBeDisplayed + 1; i++) {
-	    	if(sheet.getRow(i) == null)
-	    		continue;
-	    	sheet.getRow(i).getCell(10).setCellStyle(redCellStyle);
+	    
+	    ResultSet fieldOrderRs = st.executeQuery("Select * from tbl_FieldSelection Where Preparer_Selection = 1 order by Sort");
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("Select TOP (" + numberToBeDisplayed + ") ");
+	    boolean start = true;
+	    while(fieldOrderRs.next()) {
+	    	if(!start)
+	    		sb.append(",");
+	    	String fieldName = fieldOrderRs.getString(1);
+	    	sb.append("[").append(fieldName).append("]");
+	    	start = false;
 	    }
+	    sb.append(" from " + outputTable + " Order by [Value Deviation EY] desc");
+	    rs = st.executeQuery(sb.toString());
+	    populateSheetContent(sheetName, rs, 10);
 	}
 
-	private void populateSheetContent(String sheetName, ResultSet rs) throws SQLException {
+	private void populateSheetContent(String sheetName, ResultSet rs, int highlight) throws SQLException {
 		ResultSetMetaData rsmd = rs.getMetaData();
 	    int numColumns = rsmd.getColumnCount();
 	    
@@ -221,6 +238,8 @@ public class OutputWriter {
 	    	SXSSFRow row = currentSheet.createRow(i);
 	    	for(int a = 0; a < numColumns; a++) {
 	    		SXSSFCell cell = row.createCell(a);
+	    		if(a == highlight)
+	    			cell.setCellStyle(redCellStyle);
 	    		String value = rs.getString(a+1);
 	    		if(NumberUtils.isCreatable(value)) {
 	    			cell.setCellType(CellType.NUMERIC);

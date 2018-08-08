@@ -77,8 +77,8 @@ public class InputLoader {
 			double nominal = row.getCell(6).getNumericCellValue();
 			String shortLong = row.getCell(7).getStringCellValue();
 			String eyComment = "";
-			if(row.getCell(10) != null)
-				eyComment = row.getCell(10).getStringCellValue();
+			if(row.getCell(8) != null)
+				eyComment = row.getCell(8).getStringCellValue();
 			String queryString = "INSERT INTO " +
 					tableName + 
 					" (EY_No, SecID, ISIN, [Client Security Description], [Valuation quote], Nominal, [Type of Price], ShortLongFlag, [EY_Comment]) VALUES (" +
