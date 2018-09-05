@@ -13,7 +13,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
-import model.InputMessage;
 import service.ImportService;
 
 @Path("/import")
@@ -132,6 +131,23 @@ public class ImportResource {
 		
 		try {
 			ImportService.importDLMaster(fileInputStream, userName);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return Response.status(Status.OK).build();	
+	}
+	
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	@POST
+	@Path("/fxrates")
+	public Response postFxRates(
+			@FormDataParam("user") String userName,
+			@FormDataParam("file") InputStream fileInputStream){	
+		
+		try {
+			ImportService.importFxRates(fileInputStream, userName);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

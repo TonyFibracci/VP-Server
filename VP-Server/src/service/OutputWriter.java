@@ -34,12 +34,15 @@ import org.apache.poi.xssf.streaming.SXSSFDrawing;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.sun.prism.paint.Color;
 
 import model.GlobalConstants;
 import model.OutputMessage;
@@ -49,7 +52,7 @@ import utils.StringUtil;
 
 public class OutputWriter {
 	
-	private static final String SCRIPT_PATH = "C:\\Users\\deslu001\\Documents\\SQL Server Management Studio\\outputScript3.sql";
+	private static final String SCRIPT_PATH = "C:\\Users\\deslu001\\Documents\\SQL Server Management Studio\\outputScript4.sql";
 	public static final String OUTPUT_PREFIX = "OUTPUT_";
 	public static final String INPUT_PREFIX = "DTP_";
 	public static final String INPUT_CL_PREFIX = "DTP_CL_";
@@ -192,12 +195,14 @@ public class OutputWriter {
 	}
 
 	private void populateSheetContent(String sheetName, ResultSet rs, int highlight) throws SQLException {
+		XSSFColor eyGreen = new XSSFColor(new java.awt.Color(149, 203, 137));
+		XSSFColor eyYellow = new XSSFColor(new java.awt.Color(255, 230, 0));
+		
 		ResultSetMetaData rsmd = rs.getMetaData();
 	    int numColumns = rsmd.getColumnCount();
 	    
-
 	    SXSSFSheet currentSheet = workbook.createSheet(sheetName);
-	    currentSheet.setTabColor(IndexedColors.LIGHT_GREEN.getIndex());
+	    currentSheet.setTabColor(eyGreen);
 	    currentSheet.setRandomAccessWindowSize(100);
 	    
 	    CellStyle wrapText = workbook.createCellStyle();
@@ -211,15 +216,18 @@ public class OutputWriter {
 	    greyHeader.cloneStyleFrom(wrapText);
 	    greyHeader.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 	    
-	    CellStyle yellowHeader = workbook.createCellStyle();
+	    XSSFCellStyle yellowHeader = (XSSFCellStyle) workbook.createCellStyle();
 	    yellowHeader.cloneStyleFrom(wrapText);
-	    yellowHeader.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+	    yellowHeader.setFillForegroundColor(eyYellow);
 	    
 	    CellStyle redCellStyle = workbook.createCellStyle();
 	    redCellStyle.setAlignment(HorizontalAlignment.CENTER);
 	    redCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 	    redCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
 	    redCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    
+	    CellStyle twoDecimalStyle = workbook.createCellStyle();
+	    twoDecimalStyle.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
 	    
 	    SXSSFRow rowHead = currentSheet.createRow(0);
 	    for(int a = 0; a < numColumns; a++) {
@@ -242,8 +250,11 @@ public class OutputWriter {
 	    			cell.setCellStyle(redCellStyle);
 	    		String value = rs.getString(a+1);
 	    		if(NumberUtils.isCreatable(value)) {
+	    			double number = Double.parseDouble(value);
 	    			cell.setCellType(CellType.NUMERIC);
 	    			cell.setCellValue(Double.parseDouble(value));
+	    			if(number % 1 != 0)
+	    				cell.setCellStyle(twoDecimalStyle);
 	    		}
 	    		else
 	    			cell.setCellValue(value);
@@ -283,8 +294,14 @@ public class OutputWriter {
 	
 	
 	private void writeCoverPage() throws IOException {
+	    //set EY colors
+	    XSSFColor eyLightGrey = new XSSFColor(new java.awt.Color(204, 204, 204));
+	    XSSFColor eyGreen = new XSSFColor(new java.awt.Color(149, 203, 137));
+	    XSSFColor eyViolett = new XSSFColor(new java.awt.Color(200, 147, 199));
+	    XSSFColor eyYellow = new XSSFColor(new java.awt.Color(255, 230, 0));
+		
 		SXSSFSheet coverPage = workbook.createSheet("Cover Page");
-		coverPage.setTabColor(IndexedColors.YELLOW1.getIndex());
+		coverPage.setTabColor(eyYellow);
 		coverPage.setRandomAccessWindowSize(100);
 		
 	    //add EY logo
@@ -304,25 +321,34 @@ public class OutputWriter {
 	    whiteBackground.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    for(int i = 0; i < 62; i++) {
 	    	SXSSFRow row = coverPage.createRow(i);
-	    	for(int j = 0; j < 30; j++)
+	    	for(int j = 0; j < 35; j++)
 	    		row.createCell(j).setCellStyle(whiteBackground);
 	    }
-	    CellStyle yellowBackground = workbook.createCellStyle();
-	    yellowBackground.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+	    XSSFCellStyle yellowBackground = (XSSFCellStyle) workbook.createCellStyle();
+	    yellowBackground.setFillForegroundColor(eyYellow);
 	    yellowBackground.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    for(int i = 2; i < 11; i++) {
 	    	SXSSFRow row = coverPage.getRow(i);
-	    	for(int j = 5; j < 30; j++)
+	    	for(int j = 5; j < 35; j++)
 	    		row.getCell(j).setCellStyle(yellowBackground);
 	    }
-	    CellStyle lightGreyBackground = workbook.createCellStyle();
-	    lightGreyBackground.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+	    XSSFCellStyle lightGreyBackground = (XSSFCellStyle) workbook.createCellStyle();
+	    lightGreyBackground.setFillForegroundColor(eyLightGrey);
 	    lightGreyBackground.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    for(int i = 29; i < 34; i++) {
 	    	SXSSFRow row = coverPage.getRow(i);
 	    	for(int j = 5; j < 20; j++)
 	    		row.getCell(j).setCellStyle(lightGreyBackground);
 	    }
+	    
+	    XSSFCellStyle wrapText = (XSSFCellStyle) workbook.createCellStyle();
+	    wrapText.setWrapText(true);
+	    wrapText.setVerticalAlignment(VerticalAlignment.CENTER);
+	    wrapText.setFillForegroundColor(eyLightGrey);
+	    wrapText.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    Font whiteFont = workbook.createFont();
+	    whiteFont.setColor(IndexedColors.WHITE.getIndex());
+	    wrapText.setFont(whiteFont);
 	    
 	    //set labels
 	    coverPage.getRow(2).getCell(5).setCellValue("Client:");
@@ -354,8 +380,8 @@ public class OutputWriter {
 	    coverPage.getRow(12).getCell(5).setCellValue("The client prices are compared to our EY fair price derived from the data of different market data providers including Bloomberg, ICE, Markit and Thomson Reuters.");
 	    coverPage.getRow(13).getCell(5).setCellValue("We adhere to the pre-defined prefect hierarchy, which reflects the priority in which the data are classified to obtain a fair valuation.");
 	    coverPage.getRow(15).getCell(13).setCellValue("Includes all priced and not priced positions in the analysis.");
-	    coverPage.getRow(17).getCell(13).setCellValue("Short list including the top 10 of the largest relative deviations found in the portfolio. Please note that this list is already included in the database tab.");
-	    coverPage.getRow(19).getCell(13).setCellValue("Short list including the top 10 of the largest absolute deviations found in the portfolio. Please note that this list is already included in the database tab.");
+	    coverPage.getRow(17).getCell(13).setCellValue("Short list including the top 10 of the largest relative deviations found in the portfolio.");
+	    coverPage.getRow(19).getCell(13).setCellValue("Short list including the top 10 of the largest absolute deviations found in the portfolio.");
 	    coverPage.getRow(21).getCell(13).setCellValue("Positions for which prices were not available from any of our market data providers.");
 	    
 	    coverPage.addMergedRegion(new CellRangeAddress(23, 23, 0, 4));
@@ -374,11 +400,28 @@ public class OutputWriter {
 	    coverPage.getRow(32).getCell(5).setCellValue("Market Value in Scope of Analysis calculated:");
 	    coverPage.getRow(33).getCell(5).setCellValue("Difference:");
 	    
-	    CellStyle bold_style = workbook.createCellStyle();
+	    coverPage.addMergedRegion(new CellRangeAddress(12, 33, 22, 33));
+	    coverPage.getRow(12).getCell(22).setCellValue("+++++++++++++++Disclaimer+++++++++++++++\r\n" + 
+	    		"\r\n" + 
+	    		"The analysis is based on the data in sheet EY Valuation Results of this Excel file. The reporting currency is GBP and prices were primarily compared to end-of-day Bid prices for active positions and end-of-day Ask prices for passive positions.\r\n" + 
+	    		"\r\n" + 
+	    		"Please note that we have to convert the prices obtained from our data vendors from EUR into the respective currency. For this analysis we used the EUR/GBP FX rate of 0,87479.\r\n" + 
+	    		"Column Fair Price EY holds the benchmark price used for the valuation of the price given by the client in column Fair Price Client. \r\n" + 
+	    		"All this information is free to use for EY analysts. Only for specific positions the data is allowed to be forwarded to the client.\r\n" + 
+	    		"\r\n" + 
+	    		"Please note that the EY composite rating used in the analysis is based on credit ratings as of 14.08.2018 (or older). As historical ratings are not provided by our data vendors slight changes with respect to the grouping in the EY composite rating based graphs can occur occasionally.\r\n" + 
+	    		"\r\n" + 
+	    		"The responsible audit team needs to evaluate and recognize the work performed according to EY GAM including necessary documentation in CANVAS as the members of the Visual Portfolio team are treated as internal specialists (ISA 620).\r\n" + 
+	    		"\r\n" + 
+	    		"+++++++++++++++++++++++++++++++++++++\r\n" + 
+	    		"");
+	    coverPage.getRow(12).getCell(22).setCellStyle(wrapText);
+	    
+	    XSSFCellStyle bold_style = (XSSFCellStyle) workbook.createCellStyle();
 	    Font bold_font = workbook.createFont();
 	    bold_font.setBold(true);
 	    bold_style.setFont(bold_font);
-	    bold_style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+	    bold_style.setFillForegroundColor(eyLightGrey);
 	    bold_style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    coverPage.getRow(29).getCell(10).setCellValue("Assets");
 	    coverPage.getRow(29).getCell(10).setCellStyle(bold_style);
@@ -392,8 +435,8 @@ public class OutputWriter {
         hlink_font.setColor(IndexedColors.BLUE.getIndex());
 	    
         //Green background
-	    CellStyle greenBackground = workbook.createCellStyle();
-	    greenBackground.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+	    XSSFCellStyle greenBackground = (XSSFCellStyle) workbook.createCellStyle();
+	    greenBackground.setFillForegroundColor(eyGreen);
 	    greenBackground.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    greenBackground.setFont(hlink_font);
 	    greenBackground.setAlignment(HorizontalAlignment.CENTER);
@@ -430,8 +473,8 @@ public class OutputWriter {
 	    coverPage.getRow(21).getCell(5).setHyperlink(notCoveredPositionsLink);
 
         //Aqua background
-	    CellStyle aquaBackground = workbook.createCellStyle();
-	    aquaBackground.setFillForegroundColor(IndexedColors.AQUA.getIndex());
+	    XSSFCellStyle aquaBackground = (XSSFCellStyle) workbook.createCellStyle();
+	    aquaBackground.setFillForegroundColor(eyViolett);
 	    aquaBackground.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    aquaBackground.setFont(hlink_font);
 	    aquaBackground.setAlignment(HorizontalAlignment.CENTER);
@@ -452,8 +495,8 @@ public class OutputWriter {
 	    coverPage.getRow(25).getCell(5).setHyperlink(excludedPositionsLink);
 	    
         //Grey background
-	    CellStyle greyBackground = workbook.createCellStyle();
-	    greyBackground.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+	    XSSFCellStyle greyBackground = (XSSFCellStyle) workbook.createCellStyle();
+	    greyBackground.setFillForegroundColor(eyLightGrey);
 	    greyBackground.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    greyBackground.setFont(hlink_font);
 	    greyBackground.setAlignment(HorizontalAlignment.CENTER);
@@ -488,9 +531,11 @@ public class OutputWriter {
 		    SXSSFSheet excludedPositions = workbook.createSheet("Excluded Positions");
 		    SXSSFSheet clientDelivery = workbook.createSheet("Client Delivery");
 
-		    dataPreparation.setTabColor(IndexedColors.AQUA.getIndex());
-		    excludedPositions.setTabColor(IndexedColors.AQUA.getIndex());
-		    clientDelivery.setTabColor(IndexedColors.GREY_50_PERCENT.getIndex());
+		    XSSFColor eyViolett = new XSSFColor(new java.awt.Color(200, 147, 199));
+		    XSSFColor eyLightGrey = new XSSFColor(new java.awt.Color(204, 204, 204));
+		    dataPreparation.setTabColor(eyViolett);
+		    excludedPositions.setTabColor(eyViolett);
+		    clientDelivery.setTabColor(eyLightGrey);
 		    //Create file system using specific name
 		    FileOutputStream out = new FileOutputStream(new File(message.getOutputPath()));
 		    workbook.write(out);
@@ -507,7 +552,7 @@ public class OutputWriter {
 	}
 	
 	
-	public void run() {
+	public boolean run() {
 		try {
 			if(message.getStatus() == OutputMessage.STATUS_PREPARE) {
 				System.out.println("start calc...");
@@ -551,18 +596,20 @@ public class OutputWriter {
 //			Excel.export(outputTable, message.getOutputPath());
 //			export();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return false;
 		}
+		
+		return true;
 	}
 
 }

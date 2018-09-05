@@ -102,7 +102,7 @@ public class ImportService {
 	    File targetFile = new File("targetFile_" + userName + ".csv");
 	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
 	    		  .lines().collect(Collectors.joining("\n")); 
-	    String content = createSqlServerCompatibleFile(result);
+	    String content = createSqlServerCompatibleFile(result, true);
 	    Files.write(targetFile.toPath(), content.getBytes());
 	    
 	    List<String> fields = new ArrayList<String>();
@@ -121,7 +121,7 @@ public class ImportService {
 		
 	}
 	
-	private static String createSqlServerCompatibleFile(String input) {
+	private static String createSqlServerCompatibleFile(String input, boolean isZipped) {
 		String content = input;
 		Pattern p = Pattern.compile("\"([^\"]*)\"");
 		Matcher m = p.matcher(content);
@@ -139,6 +139,12 @@ public class ImportService {
 		content = content.replace("N.D.", "");
 		//add carriage return to all line breaks
 		content = content.replaceAll(";\\s*$", "").replaceAll(";\\s*\n", "\r\n");	
+		/*add carriage return for header line (neccessary for bcp)*/
+		if(!isZipped) {
+			content = content.replaceFirst("\n", "\r\n");
+		}
+		/*add carriage return for the last line (neccessary for bcp)*/
+		content += "\r\n";
 		return content;
 	}
 
@@ -146,7 +152,7 @@ public class ImportService {
 	    File targetFile = new File("targetFile_" + userName + ".csv");
 	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
 	    		  .lines().collect(Collectors.joining("\n")); 
-	    String content = createSqlServerCompatibleFile(result);
+	    String content = createSqlServerCompatibleFile(result, false);
 	    Files.write(targetFile.toPath(), content.getBytes());
 	    
 	    List<String> fields = new ArrayList<String>();
@@ -175,7 +181,7 @@ public class ImportService {
 	    File targetFile = new File("targetFile_" + userName + ".csv");
 	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
 	    		  .lines().collect(Collectors.joining("\n")); 
-	    String content = createSqlServerCompatibleFile(result);
+	    String content = createSqlServerCompatibleFile(result, true);
 	    Files.write(targetFile.toPath(), content.getBytes());
 	    
 	    List<String> fields = new ArrayList<String>();
@@ -198,7 +204,7 @@ public class ImportService {
 	    File targetFile = new File("targetFile_" + userName + ".csv");
 	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
 	    		  .lines().collect(Collectors.joining("\n")); 
-	    String content = createSqlServerCompatibleFile(result);
+	    String content = createSqlServerCompatibleFile(result, true);
 	    Files.write(targetFile.toPath(), content.getBytes());
 	    
 	    List<String> fields = new ArrayList<String>();
@@ -216,7 +222,7 @@ public class ImportService {
 	    File targetFile = new File("targetFile_" + userName + ".csv");
 	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
 	    		  .lines().collect(Collectors.joining("\n")); 
-	    String content = createSqlServerCompatibleFile(result);
+	    String content = createSqlServerCompatibleFile(result, true);
 	    Files.write(targetFile.toPath(), content.getBytes());
 	    
 	    List<String> fields = new ArrayList<String>();
@@ -239,8 +245,9 @@ public class ImportService {
 	    File targetFile = new File("targetFile_" + userName + ".csv");
 	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
 	    		  .lines().collect(Collectors.joining("\n")); 
-	    String content = createSqlServerCompatibleFile(result);
+	    String content = createSqlServerCompatibleFile(result, false);
 	    Files.write(targetFile.toPath(), content.getBytes());
+
 	    
 	    List<String> fields = new ArrayList<String>();
 	    String pricingDay = "";
@@ -259,9 +266,50 @@ public class ImportService {
 	    
 	    
 	    JDBCUtil dbUtil = new JDBCUtil(userName);
-	    dbUtil.createDLMasterTable(fields);
+	    dbUtil.createBVALTable(fields);
 	    dbUtil.importCsvBcp(targetFile.getAbsolutePath());
-	    dbUtil.importBVALTable(pricingDay, GlobalConstants.BLOOMBERG_MASTER_TABLE);	
+	    dbUtil.importBVALTable(pricingDay, GlobalConstants.BLOOMBERG_PRICING_TABLE);			
+	}
+	
+
+	public static void importFxRates(InputStream fileInputStream, String userName) {
+		BufferedReader in = new BufferedReader(new InputStreamReader(fileInputStream));
+		Session session = HibernateUtil.getSessionFactory().openSession();	
+		Transaction tx = session.beginTransaction();
+		String line;
+		try {
+			line = in.readLine();
+			String valuationDate = line.split(";")[7].split(":")[1];
+			while((line = in.readLine()) != null) {
+			    String[] fields = line.split(";");
+			    if(!fields[1].equals("0"))
+			    	continue;
+			    String fromCur = fields[4].substring(1, 4);
+			    String toCur = fields[4].substring(4, 7);
+			    String rate = fields[7];
+			    System.out.println("Currency: " + toCur + " Rate: " + rate);
+			    
+			    String queryString = "INSERT INTO tbl_FXrates (" +
+			    		"[Source]\r\n" + 
+			    		"      ,[fxDate]\r\n" + 
+			    		"      ,[FromCur]\r\n" + 
+			    		"      ,[ToCur]\r\n" + 
+			    		"      ,[Rate])" +
+			    		" VALUES(2,'" + valuationDate +
+			    		"','" + fromCur + "','" + toCur + "'," + rate + ")";
+				Query query = session.createNativeQuery(queryString);
+				query.executeUpdate();
+				session.flush();
+				session.clear();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			tx.commit();
+			session.close();
+		}
+
 		
 	}
 

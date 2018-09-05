@@ -64,7 +64,7 @@ public class Excel {
 		myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
 	    Statement st = myConn.createStatement();
     	ResultSet isins = st.executeQuery(
-	    		"SELECT ISIN "
+	    		"SELECT DISTINCT ISIN "
 	    		+ "FROM " + table 
 	    		+ " WHERE [Type of price] = 'Percent'"
 	    		+ " AND ([Fair Price EY] is null OR EY_Price_Origin_Position = 'Last')");
