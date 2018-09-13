@@ -158,7 +158,7 @@ public class ImportService {
 	    List<String> fields = new ArrayList<String>();
 	    List<String> fieldsAndDates = new ArrayList<String>();
 	    
-	    String headers = content.split("\n")[0];
+	    String headers = content.split("\\r\n")[0];
 	    String[] headersSplitted = headers.split(";");
 	    for(int i = 3; i < headersSplitted.length; i++) {
 	    	String[] subSplits = headersSplitted[i].split(":");
@@ -181,12 +181,12 @@ public class ImportService {
 	    File targetFile = new File("targetFile_" + userName + ".csv");
 	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
 	    		  .lines().collect(Collectors.joining("\n")); 
-	    String content = createSqlServerCompatibleFile(result, true);
+	    String content = createSqlServerCompatibleFile(result, false);
 	    Files.write(targetFile.toPath(), content.getBytes());
 	    
 	    List<String> fields = new ArrayList<String>();
 	    
-	    String headers = content.split("\n")[0];
+	    String headers = content.split("\\r\n")[0];
 	    String[] headersSplitted = headers.split(";");
 	    for(int i = 3; i < headersSplitted.length; i++) {
 	    	fields.add(headersSplitted[i]);
@@ -252,7 +252,7 @@ public class ImportService {
 	    List<String> fields = new ArrayList<String>();
 	    String pricingDay = "";
 	    
-	    String headers = content.split("\n")[0];
+	    String headers = content.split("\\r\n")[0];
 	    String[] headersSplitted = headers.split(";");
 	    for(int i = 3; i < headersSplitted.length; i++) {
 	    	String[] subSplitted = headersSplitted[i].split(":");
