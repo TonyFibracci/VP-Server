@@ -13,6 +13,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.Query;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.common.usermodel.HyperlinkType;
@@ -31,6 +35,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.streaming.SXSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFDrawing;
+import org.apache.poi.xssf.streaming.SXSSFPicture;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -38,13 +43,16 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.Session;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.sun.prism.paint.Color;
 
+import database.HibernateUtil;
 import model.GlobalConstants;
+import model.Job;
 import model.OutputMessage;
 import model.User;
 import utils.StringUtil;
@@ -227,7 +235,10 @@ public class OutputWriter {
 	    redCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	    
 	    CellStyle twoDecimalStyle = workbook.createCellStyle();
-	    twoDecimalStyle.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+	    twoDecimalStyle.setDataFormat(workbook.createDataFormat().getFormat("#,##0.00"));
+	    
+	    CellStyle integerStyle = workbook.createCellStyle();
+	    integerStyle.setDataFormat(workbook.createDataFormat().getFormat("#,###"));
 	    
 	    SXSSFRow rowHead = currentSheet.createRow(0);
 	    for(int a = 0; a < numColumns; a++) {
@@ -249,12 +260,14 @@ public class OutputWriter {
 	    		if(a == highlight)
 	    			cell.setCellStyle(redCellStyle);
 	    		String value = rs.getString(a+1);
-	    		if(NumberUtils.isCreatable(value)) {
+	    		if(NumberUtils.isCreatable(value) && NumberUtils.isCreatable(value.substring(value.length() - 1))) {
 	    			double number = Double.parseDouble(value);
 	    			cell.setCellType(CellType.NUMERIC);
 	    			cell.setCellValue(Double.parseDouble(value));
 	    			if(number % 1 != 0)
 	    				cell.setCellStyle(twoDecimalStyle);
+	    			else
+	    				cell.setCellStyle(integerStyle);
 	    		}
 	    		else
 	    			cell.setCellValue(value);
@@ -294,6 +307,9 @@ public class OutputWriter {
 	
 	
 	private void writeCoverPage() throws IOException {
+		String pricingDay = StringUtil.convertDateFormat(message.getJob().getPricingDay());
+		String currency = message.getJob().getCurrency();
+		double fxRate = getFxRate(currency, message.getJob().getPricingDay());
 	    //set EY colors
 	    XSSFColor eyLightGrey = new XSSFColor(new java.awt.Color(204, 204, 204));
 	    XSSFColor eyGreen = new XSSFColor(new java.awt.Color(149, 203, 137));
@@ -313,7 +329,9 @@ public class OutputWriter {
 	    anchor.setRow1(2);
 	    anchor.setCol2(4);
 	    anchor.setRow2(11);
-	    eyLogo.createPicture(anchor, pictureIndex);
+	    SXSSFPicture logo = eyLogo.createPicture(anchor, pictureIndex);
+	    logo.resize(0.05);
+	    
 	    
 	    //set colors 
 	    CellStyle whiteBackground = workbook.createCellStyle();
@@ -350,6 +368,11 @@ public class OutputWriter {
 	    whiteFont.setColor(IndexedColors.WHITE.getIndex());
 	    wrapText.setFont(whiteFont);
 	    
+	    CellStyle centerAlign = workbook.createCellStyle();
+	    centerAlign.setAlignment(HorizontalAlignment.CENTER);
+	    centerAlign.setVerticalAlignment(VerticalAlignment.CENTER);
+	    centerAlign.setWrapText(true);
+	    
 	    //set labels
 	    coverPage.getRow(2).getCell(5).setCellValue("Client:");
 	    coverPage.getRow(4).getCell(5).setCellValue("Valuation Date:");
@@ -358,8 +381,8 @@ public class OutputWriter {
 	    coverPage.getRow(10).getCell(5).setCellValue("Reviewed by:");
 	    
 	    coverPage.getRow(2).getCell(8).setCellValue(message.getJob().getClient().getClient());
-	    coverPage.getRow(4).getCell(8).setCellValue(StringUtil.convertDateFormat(message.getJob().getPricingDay()));
-	    coverPage.getRow(6).getCell(8).setCellValue(message.getJob().getCurrency());
+	    coverPage.getRow(4).getCell(8).setCellValue(pricingDay);
+	    coverPage.getRow(6).getCell(8).setCellValue(currency);
 	    
 	    User preparer = message.getJob().getPreparer();
 	    if(preparer == null)
@@ -373,49 +396,47 @@ public class OutputWriter {
 	    else
 	    	coverPage.getRow(10).getCell(8).setCellValue(message.getJob().getReviewer().getFirstname() + " " + message.getJob().getReviewer().getLastname());
 	    
-	    CellStyle centerAlign = workbook.createCellStyle();
 	    coverPage.addMergedRegion(new CellRangeAddress(15, 15, 0, 4));
 	    coverPage.getRow(15).getCell(0).setCellValue("Visual Portfolio Output");
 	    coverPage.getRow(15).getCell(0).setCellStyle(centerAlign);
 	    coverPage.getRow(12).getCell(5).setCellValue("The client prices are compared to our EY fair price derived from the data of different market data providers including Bloomberg, ICE, Markit and Thomson Reuters.");
 	    coverPage.getRow(13).getCell(5).setCellValue("We adhere to the pre-defined prefect hierarchy, which reflects the priority in which the data are classified to obtain a fair valuation.");
 	    coverPage.getRow(15).getCell(13).setCellValue("Includes all priced and not priced positions in the analysis.");
-	    coverPage.getRow(17).getCell(13).setCellValue("Short list including the top 10 of the largest relative deviations found in the portfolio.");
-	    coverPage.getRow(19).getCell(13).setCellValue("Short list including the top 10 of the largest absolute deviations found in the portfolio.");
+	    coverPage.getRow(17).getCell(13).setCellValue("Short list including the top 10 percent of the largest price deviations found in the portfolio.");
+	    coverPage.getRow(19).getCell(13).setCellValue("Short list including the top 10 percent of the largest market value deviations found in the portfolio.");
 	    coverPage.getRow(21).getCell(13).setCellValue("Positions for which prices were not available from any of our market data providers.");
 	    
-	    coverPage.addMergedRegion(new CellRangeAddress(23, 23, 0, 4));
-	    coverPage.getRow(23).getCell(0).setCellValue("Specialist Input");
-	    centerAlign.setAlignment(HorizontalAlignment.CENTER);
+	    coverPage.addMergedRegion(new CellRangeAddress(23, 27, 0, 4));
+	    coverPage.getRow(23).getCell(0).setCellValue("Specialist Input \r\n Columns inserted by the EY Specialist are placed to the left of the client delivery and are coloured in EY Yellow");
 	    coverPage.getRow(23).getCell(0).setCellStyle(centerAlign);
 	    coverPage.getRow(23).getCell(13).setCellValue("Client data processed by an EY specialist.");
 	    coverPage.getRow(25).getCell(13).setCellValue("Positions which were excluded from the analysis.");
 	    coverPage.getRow(27).getCell(13).setCellValue("Positions delivered by the client.");
 	    
-	    coverPage.addMergedRegion(new CellRangeAddress(29, 29, 0, 4));
-	    coverPage.getRow(29).getCell(0).setCellValue("Reconciliation of the MV given by the Client");
+	    coverPage.addMergedRegion(new CellRangeAddress(29, 30, 0, 4));
+	    coverPage.getRow(29).getCell(0).setCellValue("Reconciliation of the Market Value given by the Client");
 	    coverPage.getRow(29).getCell(0).setCellStyle(centerAlign);
 	    coverPage.getRow(30).getCell(5).setCellValue("Market Value as delivered:");
 	    coverPage.getRow(31).getCell(5).setCellValue("Market Value excluded as delivered:");
 	    coverPage.getRow(32).getCell(5).setCellValue("Market Value in Scope of Analysis calculated:");
 	    coverPage.getRow(33).getCell(5).setCellValue("Difference:");
 	    
-	    coverPage.addMergedRegion(new CellRangeAddress(12, 33, 22, 33));
-	    coverPage.getRow(12).getCell(22).setCellValue("+++++++++++++++Disclaimer+++++++++++++++\r\n" + 
+	    coverPage.addMergedRegion(new CellRangeAddress(12, 33, 23, 33));
+	    coverPage.getRow(12).getCell(23).setCellValue("\r\n+++++++++++++++Disclaimer+++++++++++++++\r\n" + 
 	    		"\r\n" + 
-	    		"The analysis is based on the data in sheet EY Valuation Results of this Excel file. The reporting currency is GBP and prices were primarily compared to end-of-day Bid prices for active positions and end-of-day Ask prices for passive positions.\r\n" + 
+	    		"The analysis is based on the data in sheet EY Valuation Results of this Excel file. The reporting currency is " + currency +" and prices were primarily compared to end-of-day Bid prices for active positions and end-of-day Ask prices for passive positions.\r\n" + 
 	    		"\r\n" + 
-	    		"Please note that we have to convert the prices obtained from our data vendors from EUR into the respective currency. For this analysis we used the EUR/GBP FX rate of 0,87479.\r\n" + 
+	    		"Please note that we have to convert the prices obtained from our data vendors from EUR into the respective currency. For this analysis we used the EUR/" + currency +" FX rate of " + fxRate + ".\r\n" + 
 	    		"Column Fair Price EY holds the benchmark price used for the valuation of the price given by the client in column Fair Price Client. \r\n" + 
 	    		"All this information is free to use for EY analysts. Only for specific positions the data is allowed to be forwarded to the client.\r\n" + 
 	    		"\r\n" + 
-	    		"Please note that the EY composite rating used in the analysis is based on credit ratings as of 14.08.2018 (or older). As historical ratings are not provided by our data vendors slight changes with respect to the grouping in the EY composite rating based graphs can occur occasionally.\r\n" + 
+	    		"Please note that the EY composite rating used in the analysis is based on credit ratings as of " + pricingDay + " (or older). As historical ratings are not provided by our data vendors slight changes with respect to the grouping in the EY composite rating based graphs can occur occasionally.\r\n" + 
 	    		"\r\n" + 
 	    		"The responsible audit team needs to evaluate and recognize the work performed according to EY GAM including necessary documentation in CANVAS as the members of the Visual Portfolio team are treated as internal specialists (ISA 620).\r\n" + 
 	    		"\r\n" + 
 	    		"+++++++++++++++++++++++++++++++++++++\r\n" + 
 	    		"");
-	    coverPage.getRow(12).getCell(22).setCellStyle(wrapText);
+	    coverPage.getRow(12).getCell(23).setCellStyle(wrapText);
 	    
 	    XSSFCellStyle bold_style = (XSSFCellStyle) workbook.createCellStyle();
 	    Font bold_font = workbook.createFont();
@@ -551,13 +572,69 @@ public class OutputWriter {
 		}
 	}
 	
+	private static boolean hasFxRate(String currency, Date pricingDay){
+		Session session = HibernateUtil.getSessionFactory().openSession();	
+		try {		
+			session.beginTransaction();
+			Query query = session.createNativeQuery("SELECT * FROM tbl_FXrates WHERE FromCur = :currency AND fxDate = :pricingDay");
+			query.setParameter("currency", currency);
+			query.setParameter("pricingDay", StringUtil.convertDateFormat(pricingDay));
+			if(query.getResultList().size() > 0) {
+				return true;
+			}
+			return false;
+			
+			
+		} finally {
+			session.close();
+		}	
+	}
 	
-	public boolean run() {
+	private static double getFxRate(String currency, Date pricingDay){
+		if(currency.equals("EUR"))
+			return 1;
+		Session session = HibernateUtil.getSessionFactory().openSession();	
+		try {		
+			session.beginTransaction();
+			Query query = session.createNativeQuery("SELECT Rate FROM tbl_FXrates WHERE FromCur = :currency AND fxDate = :pricingDay");
+			query.setParameter("currency", currency);
+			query.setParameter("pricingDay", StringUtil.convertDateFormat(pricingDay));
+			if(query.getResultList().size() > 0) {
+				@SuppressWarnings("unchecked")
+				List<Object> res = query.getResultList();
+				return (double) res.get(0);
+			}
+			return -1;
+			
+			
+		} finally {
+			session.close();
+		}	
+	}
+	
+	private static List<String> getMissingIdxPositions(String outputTable){
+		Session session = HibernateUtil.getSessionFactory().openSession();	
+		try {		
+			session.beginTransaction();
+			Query query = session.createNativeQuery("SELECT ISIN FROM " + outputTable + " WHERE BB_INFLATION_LINKED_INDICATOR = 'Y' AND BB_IDX_RATIO is null");
+			List<String> res = query.getResultList();
+			return res;		
+		} finally {
+			session.close();
+		}	
+	}
+	
+	
+	public String run() {
 		try {
 			if(message.getStatus() == OutputMessage.STATUS_PREPARE) {
+				String currency = message.getJob().getCurrency();
+				if(!currency.equals("EUR") && !hasFxRate(currency, message.getJob().getPricingDay())) {
+					return "FX rate is missing";
+				}
 				System.out.println("start calc...");
 				System.out.println(GlobalConstants.SERVER);
-				Process evaluation = new ProcessBuilder(
+				ProcessBuilder pb = new ProcessBuilder(
 						"sqlcmd", 
 						"-E", 
 						"-d",
@@ -572,8 +649,19 @@ public class OutputWriter {
 						"currency=" + message.getJob().getCurrency(),
 						"priceCategory=" + message.getPriceCategory(),
 						"-i",
-						SCRIPT_PATH).start();
-				evaluation.waitFor();
+						SCRIPT_PATH);
+				pb.redirectErrorStream(true);
+				Process evaluation = pb.start();
+				Thread.sleep(10000);
+				List<String> missingIdxRatioPositions = getMissingIdxPositions(OUTPUT_PREFIX + message.getJob().getPreparer().getId());
+				if(missingIdxRatioPositions.size() > 0) {
+					StringBuilder sb = new StringBuilder();
+					for(String isin : missingIdxRatioPositions) {
+						sb.append(isin).append("\n");
+					}
+					return sb.toString();
+				}
+				//evaluation.waitFor();
 			} else if(message.getStatus() == OutputMessage.STATUS_REQUEST) {
 				System.out.println("Excel start...");
 				String outputTable = OUTPUT_PREFIX + message.getJob().getPreparer().getId();
@@ -589,27 +677,31 @@ public class OutputWriter {
 				if(message.isMarkit()) {
 					Excel.createMarkitRequest(outputTable, outputFolderPath);
 				}
+				if(message.isIdx()) {
+					Excel.createBbIdxRequest(outputTable, outputFolderPath, StringUtil.convertDateFormat(message.getJob().getPricingDay()));		
+				}
+				if(message.isNav()) {
+					Excel.createBbNavRequest(outputTable,outputFolderPath, StringUtil.convertDateFormat(message.getJob().getPricingDay()));
+				}
 			} else if(message.getStatus() == OutputMessage.STATUS_OUTPUT) {
 				System.out.println("Excel start...");
 				export();
 			}
-//			Excel.export(outputTable, message.getOutputPath());
-//			export();
 		} catch (IOException e) {
 			e.printStackTrace();
-			return false;
+			return "IOException";
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			return false;
+			return "IOException";
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return false;
+			return "SQLException";
 		} catch (ParseException e) {
 			e.printStackTrace();
-			return false;
+			return "ParseException";
 		}
 		
-		return true;
+		return "OK";
 	}
 
 }

@@ -222,13 +222,15 @@ public class ImportService {
 	    File targetFile = new File("targetFile_" + userName + ".csv");
 	    String result = new BufferedReader(new InputStreamReader(fileInputStream))
 	    		  .lines().collect(Collectors.joining("\n")); 
-	    String content = createSqlServerCompatibleFile(result, true);
+	    String content = result.replace("\"", "");
+	    content = content.replaceAll("\n", "\r\n");
+	    content = content.replace(",", ";");
 	    Files.write(targetFile.toPath(), content.getBytes());
 	    
 	    List<String> fields = new ArrayList<String>();
 	    
-	    String headers = content.split("\n")[0];
-	    String[] headersSplitted = headers.split(",");
+	    String headers = content.split("\\r\n")[0];
+	    String[] headersSplitted = headers.split(";");
 	    for(int i = 0; i < headersSplitted.length; i++) {
 	    	fields.add(headersSplitted[i]);
 	    }

@@ -309,6 +309,65 @@ public class Excel {
 	    myConn.close();
 	}
 	
+	public static void createBbIdxRequest(String table, String path, String day) throws SQLException, IOException, ParseException{
+		LocalDate pricingDay = LocalDate.parse(day);
+		LocalDate pricingDayOneYearBefore = pricingDay.minusDays(365);;
+		StringBuilder sb = new StringBuilder();
+		sb.append("START-OF-FILE").append("\n");
+		Connection myConn = null;
+		myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
+	    Statement st = myConn.createStatement();
+	    
+	    ResultSet headerOptions = st.executeQuery(
+	    		"SELECT * "
+	    		+ "FROM def_PP_Header "
+	    		+ "WHERE RequestTypeID = 'DL_HistIdx' "
+	    		+ "AND CurrentRequest = 1 "
+	    		+ "ORDER BY Sort " );
+	    while (headerOptions.next()){
+	    	sb.append(headerOptions.getString(4)).append(" = ");
+	    	if(headerOptions.getString(4).equals("DATERANGE")) {
+	    		sb.append(pricingDayOneYearBefore.format(DateTimeFormatter.BASIC_ISO_DATE));
+	    		sb.append("|");
+	    		sb.append(pricingDay.format(DateTimeFormatter.BASIC_ISO_DATE));
+	    	}
+	    	else {
+		    	sb.append(headerOptions.getString(5));
+	    	}
+	    	sb.append("\n");
+	    }
+	    sb.append("START-OF-FIELDS").append("\n");
+	    ResultSet fields = st.executeQuery(
+	    		"SELECT * "
+	    		+ "FROM def_NRequestFields "
+	    		+ "WHERE RequestTypeID = 13  "
+	    		+ "AND [REQUIRED] = 1 "
+	    		+ "ORDER BY Sort");
+	    while (fields.next()){
+	    	sb.append(fields.getString(4)).append("\n");
+	    }   
+	    sb.append("END-OF-FIELDS").append("\n");
+	    sb.append("START-OF-DATA").append("\n");
+	    ResultSet isins = st.executeQuery(
+	    		"SELECT DISTINCT ISIN "
+	    		+ "FROM " + table 
+	    		+ " WHERE [BB_IDX_RATIO] is NULL AND [BB_INFLATION_LINKED_INDICATOR] = 'Y' ");
+	    if((!isins.isBeforeFirst()))
+    		return;
+	    while (isins.next()){
+	    	sb.append(isins.getString(1)).append("|ISIN|").append("\n");
+	    }   
+	    
+	    sb.append("END-OF-DATA").append("\n");
+	    sb.append("END-OF-FILE").append("\n");
+	    System.out.println(sb.toString());
+	    String currentTime = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+	    Files.write(Paths.get(path + "\\IDX_" + currentTime + ".req"), sb.toString().getBytes());
+	    st.close();
+	    myConn.close();
+	}
+	
+	
 	public static void importInput(String path) throws IOException, InvalidFormatException {
 	    //Create file system using specific name
 	    //FileInputStream in = new FileInputStream(new File(path));
@@ -609,6 +668,65 @@ public class Excel {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+	}
+
+	public static void createBbNavRequest(String table, String path, String day) throws SQLException, IOException, ParseException{
+		LocalDate pricingDay = LocalDate.parse(day);
+		LocalDate pricingDayOneYearBefore = pricingDay.minusDays(365);;
+		StringBuilder sb = new StringBuilder();
+		sb.append("START-OF-FILE").append("\n");
+		Connection myConn = null;
+		myConn = DriverManager.getConnection(GlobalConstants.JDBC_URL);
+	    Statement st = myConn.createStatement();
+	    
+	    ResultSet headerOptions = st.executeQuery(
+	    		"SELECT * "
+	    		+ "FROM def_PP_Header "
+	    		+ "WHERE RequestTypeID = 'DL_HistNav' "
+	    		+ "AND CurrentRequest = 1 "
+	    		+ "ORDER BY Sort " );
+	    while (headerOptions.next()){
+	    	sb.append(headerOptions.getString(4)).append(" = ");
+	    	if(headerOptions.getString(4).equals("DATERANGE")) {
+	    		sb.append(pricingDayOneYearBefore.format(DateTimeFormatter.BASIC_ISO_DATE));
+	    		sb.append("|");
+	    		sb.append(pricingDay.format(DateTimeFormatter.BASIC_ISO_DATE));
+	    	}
+	    	else {
+		    	sb.append(headerOptions.getString(5));
+	    	}
+	    	sb.append("\n");
+	    }
+	    sb.append("START-OF-FIELDS").append("\n");
+	    ResultSet fields = st.executeQuery(
+	    		"SELECT * "
+	    		+ "FROM def_NRequestFields "
+	    		+ "WHERE RequestTypeID = 12  "
+	    		+ "AND [REQUIRED] = 1 "
+	    		+ "ORDER BY Sort");
+	    while (fields.next()){
+	    	sb.append(fields.getString(4)).append("\n");
+	    }   
+	    sb.append("END-OF-FIELDS").append("\n");
+	    sb.append("START-OF-DATA").append("\n");
+	    ResultSet isins = st.executeQuery(
+	    		"SELECT DISTINCT ISIN "
+	    		+ "FROM " + table 
+	    		+ " WHERE BB_SECURITY_TYP like '%Fund%' OR BB_SECURITY_TYP2 like '%Fund%'");
+	    if((!isins.isBeforeFirst()))
+    		return;
+	    while (isins.next()){
+	    	sb.append(isins.getString(1)).append("|ISIN|").append("\n");
+	    }   
+	    
+	    sb.append("END-OF-DATA").append("\n");
+	    sb.append("END-OF-FILE").append("\n");
+	    System.out.println(sb.toString());
+	    String currentTime = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+	    Files.write(Paths.get(path + "\\NAV_" + currentTime + ".req"), sb.toString().getBytes());
+	    st.close();
+	    myConn.close();
+		
 	}
 
 }

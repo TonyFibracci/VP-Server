@@ -20,11 +20,8 @@ public class OutputResource {
 	@POST
 	public Response getOutput(OutputMessage message){
 		System.out.println(message.getOutputPath());
-		boolean success = new OutputWriter(message).run();
-		if(success)
-			return Response.status(Status.OK).build();	
-		else
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		String response = new OutputWriter(message).run();
+		return Response.status(Status.OK).entity(response).build();
 	}
 	
 //	@POST

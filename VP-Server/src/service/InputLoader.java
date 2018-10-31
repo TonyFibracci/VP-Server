@@ -24,6 +24,7 @@ public class InputLoader {
 	private String tableName;
 	
 	public InputLoader(InputMessage message, InputStream inputStream) throws Exception {
+		Session session = HibernateUtil.getSessionFactory().openSession();	
 		try {
 			this.inputMessage = message;
 			tableName = OutputWriter.INPUT_PREFIX + inputMessage.getUserName();
@@ -32,7 +33,6 @@ public class InputLoader {
 			XSSFSheet sheet = workbook.getSheetAt(0);
 			int numberOfRows = sheet.getPhysicalNumberOfRows();
 	//		List<String> sheetNames = new ArrayList<String>();
-			Session session = HibernateUtil.getSessionFactory().openSession();	
 			Transaction tx = session.beginTransaction();
 			System.out.println("total: " + numberOfRows);
 			
@@ -55,6 +55,8 @@ public class InputLoader {
 			updateActiveJob();
 		} catch (Exception e) {
 			throw e;
+		} finally {
+			session.close();
 		}
 	}
 
@@ -226,7 +228,7 @@ public class InputLoader {
 	
 	private void defineNewSecID() {
 		String queryString = "SELECT MAX(SecID) FROM map_secID";
-		String queryString2 = "SELECT ISIN FROM " + tableName + " WHERE SecID is null";
+		String queryString2 = "SELECT DISTINCT ISIN FROM " + tableName + " WHERE SecID is null";
 		Session session = HibernateUtil.getSessionFactory().openSession();	
 		Transaction tx = session.beginTransaction();
 		try {		

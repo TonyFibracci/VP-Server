@@ -6,6 +6,8 @@ public class OutputMessage {
 	private String outputPath;
 	private String priceCategory;
 	private boolean bloomberg;
+	private boolean idx;
+	private boolean nav;
 	private boolean isp;
 	private boolean markit;
 	private int status;
@@ -57,6 +59,18 @@ public class OutputMessage {
 	}
 	public void setStatus(int status) {
 		this.status = status;
+	}
+	public boolean isIdx() {
+		return idx;
+	}
+	public void setIdx(boolean idx) {
+		this.idx = idx;
+	}
+	public boolean isNav() {
+		return nav;
+	}
+	public void setNav(boolean nav) {
+		this.nav = nav;
 	}
 	
 	
